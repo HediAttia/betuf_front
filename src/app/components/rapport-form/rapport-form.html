@@ -1,0 +1,142 @@
+<div class="form-container">
+
+  <div class="form-header">
+    <button mat-button (click)="annuler()">
+      <mat-icon>arrow_back</mat-icon> Retour
+    </button>
+    <h1>Rédiger un rapport de visite</h1>
+  </div>
+
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>assignment</mat-icon>
+        Informations générales
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Visite concernée</mat-label>
+        <mat-select [(ngModel)]="visiteSelectionnee" required>
+          <mat-option *ngFor="let v of visites" [value]="v.id">
+            {{ v.tunnel?.nom }} — {{ v.typeVisite }} — {{ v.dateRealisation | date:'dd/MM/yyyy' }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matPrefix>event</mat-icon>
+      </mat-form-field>
+
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Constats -->
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>description</mat-icon>
+        Constats de visite <span class="required">*</span>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Décrivez vos observations terrain (min. 50 caractères)</mat-label>
+        <textarea matInput
+                  [(ngModel)]="constats"
+                  rows="6"
+                  placeholder="Visite réalisée le... Inspection de... Constats principaux...">
+        </textarea>
+        <mat-hint>{{ constats.length }} caractères</mat-hint>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Non-conformités -->
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon color="warn">warning</mat-icon>
+        Non-conformités détectées
+      </mat-card-title>
+      <div class="card-actions">
+        <button mat-button color="primary" (click)="ajouterNC()">
+          <mat-icon>add</mat-icon> Ajouter une NC
+        </button>
+      </div>
+    </mat-card-header>
+    <mat-card-content>
+
+      <div *ngIf="nonConformites.length === 0" class="no-nc">
+        <mat-icon>check_circle</mat-icon>
+        Aucune non-conformité — cliquez sur "Ajouter une NC" si nécessaire
+      </div>
+
+      <div class="nc-list">
+        <div class="nc-item" *ngFor="let nc of nonConformites; let i = index">
+          <div class="nc-header">
+            <span class="nc-number">NC {{ i + 1 }}</span>
+            <button mat-icon-button color="warn" (click)="supprimerNC(i)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <input matInput [(ngModel)]="nc.description" placeholder="Ex: Fissure longitudinale voûte tube Est">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Localisation</mat-label>
+            <input matInput [(ngModel)]="nc.localisation" placeholder="Ex: PK 1+240, côté aval">
+            <mat-icon matPrefix>location_on</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Criticité</mat-label>
+            <mat-select [(ngModel)]="nc.criticite">
+              <mat-option *ngFor="let n of niveauxCriticite" [value]="n">{{ n }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Recommandations -->
+  <mat-card class="form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>lightbulb</mat-icon>
+        Recommandations <span class="required">*</span>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Actions à entreprendre</mat-label>
+        <textarea matInput
+                  [(ngModel)]="recommandations"
+                  rows="4"
+                  placeholder="Surveillance renforcée... Intervention à planifier...">
+        </textarea>
+      </mat-form-field>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Actions -->
+  <div class="form-actions">
+    <button mat-stroked-button (click)="annuler()">Annuler</button>
+    <button mat-stroked-button color="primary"
+            (click)="sauvegarderBrouillon()"
+            [disabled]="loading">
+      <mat-icon>save</mat-icon>
+      Sauvegarder en brouillon
+    </button>
+    <button mat-raised-button color="primary"
+            (click)="soumettre()"
+            [disabled]="loading || !visiteSelectionnee || !constats || !recommandations">
+      <mat-icon>send</mat-icon>
+      Soumettre pour validation
+    </button>
+  </div>
+
+</div>

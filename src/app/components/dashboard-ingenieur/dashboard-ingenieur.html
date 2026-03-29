@@ -1,0 +1,127 @@
+<div class="page">
+
+  <!-- En-tête -->
+  <div class="page-header">
+    <div>
+      <h1>🔧 Tableau de bord</h1>
+      <p>Bienvenue, {{ nomComplet }}</p>
+    </div>
+    <button class="btn btn-accent" routerLink="/rapports/nouveau">
+      + Rédiger un rapport
+    </button>
+  </div>
+
+  <!-- Notification corrections -->
+  <div class="alert-banner-danger" *ngIf="rapportsACorrection.length > 0">
+    ⚠️ {{ rapportsACorrection.length }} rapport(s) retourné(s) pour correction — veuillez les corriger avant soumission.
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <span class="kpi-emoji">📋</span>
+      <div class="kpi-info">
+        <div class="kpi-value">{{ mesVisites.length }}</div>
+        <div class="kpi-label">Visites assignées</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-emoji">✏️</span>
+      <div class="kpi-info">
+        <div class="kpi-value">{{ rapportsBrouillon }}</div>
+        <div class="kpi-label">Rapports en brouillon</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-emoji">✅</span>
+      <div class="kpi-info">
+        <div class="kpi-value">{{ rapportsValides }}</div>
+        <div class="kpi-label">Rapports validés</div>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <span class="kpi-emoji">🔄</span>
+      <div class="kpi-info">
+        <div class="kpi-value">{{ rapportsACorrection.length }}</div>
+        <div class="kpi-label">À corriger</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mes visites -->
+  <div class="section-card">
+    <div class="section-title">📅 Mes visites assignées</div>
+    <table class="data-table">
+      <thead>
+      <tr>
+        <th>Tunnel</th>
+        <th>Type</th>
+        <th>Date prévue</th>
+        <th>Statut</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let v of mesVisites">
+        <td>
+          <div class="tunnel-name">{{ v.tunnel?.nom }}</div>
+          <div class="tunnel-loc">{{ v.tunnel?.localisation }}</div>
+        </td>
+        <td>{{ v.typeVisite }}</td>
+        <td>{{ v.datePrevisionnelle | date:'dd/MM/yyyy' }}</td>
+        <td>
+            <span class="badge" [ngClass]="v.statut.toLowerCase()">
+              {{ v.statut === 'PLANIFIEE' ? '📅 Planifiée' : v.statut === 'REALISEE' ? '✅ Réalisée' : v.statut }}
+            </span>
+        </td>
+        <td>
+          <button class="btn btn-accent btn-sm" *ngIf="v.statut === 'PLANIFIEE'" (click)="marquerRealisee(v.id)">
+            ✓ Marquer réalisée
+          </button>
+          <button class="btn btn-ghost btn-sm" *ngIf="v.statut === 'REALISEE'" routerLink="/rapports">
+            📄 Voir rapports
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="mesVisites.length === 0">
+        <td colspan="5" style="text-align:center; color: var(--gray-500); padding: 24px">Aucune visite assignée</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Mes rapports -->
+  <div class="section-card">
+    <div class="section-title">📋 Mes rapports</div>
+    <table class="data-table">
+      <thead>
+      <tr>
+        <th>Tunnel</th>
+        <th>Statut</th>
+        <th>Version</th>
+        <th>Soumis le</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let r of mesRapports">
+        <td class="tunnel-name">{{ r.visite?.tunnel?.nom }}</td>
+        <td>
+            <span class="badge" [ngClass]="r.statut.toLowerCase()">
+              {{ r.statut === 'VALIDE' ? '✅ Validé' : r.statut === 'SOUMIS' ? '📤 Soumis' : r.statut === 'A_CORRIGER' ? '⚠️ À corriger' : '✏️ Brouillon' }}
+            </span>
+        </td>
+        <td>v{{ r.version }}</td>
+        <td>{{ r.dateSoumission ? (r.dateSoumission | date:'dd/MM/yyyy') : '—' }}</td>
+        <td>
+          <a class="btn btn-ghost btn-sm" [routerLink]="['/rapports', r.id]">👁 Consulter</a>
+        </td>
+      </tr>
+      <tr *ngIf="mesRapports.length === 0">
+        <td colspan="5" style="text-align:center; color: var(--gray-500); padding: 24px">Aucun rapport</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

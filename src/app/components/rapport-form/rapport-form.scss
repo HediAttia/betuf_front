@@ -1,0 +1,93 @@
+.form-container {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.form-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 26px;
+    font-weight: 500;
+    color: #1F4E79;
+    margin: 0;
+  }
+}
+
+.form-card {
+  margin-bottom: 24px;
+
+  mat-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  mat-card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1F4E79;
+    font-size: 16px;
+  }
+}
+
+.full-width {
+  width: 100%;
+}
+
+.required {
+  color: #f44336;
+  margin-left: 4px;
+}
+
+.no-nc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4CAF50;
+  padding: 16px 0;
+  font-size: 14px;
+}
+
+.nc-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.nc-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  background: #fafafa;
+}
+
+.nc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+
+  .nc-number {
+    font-weight: 600;
+    color: #1F4E79;
+  }
+}
+
+.card-actions {
+  margin-left: auto;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+  padding-bottom: 24px;
+}
