@@ -1,0 +1,60 @@
+<h2 mat-dialog-title>
+  <mat-icon>event</mat-icon>
+  Planifier une visite
+</h2>
+
+<mat-dialog-content>
+  <div class="form-grid">
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Tunnel</mat-label>
+      <mat-select [(ngModel)]="visite.tunnelId" required>
+        <mat-option *ngFor="let t of tunnels" [value]="t.id">
+          {{ t.nom }} — {{ t.localisation }}
+        </mat-option>
+      </mat-select>
+      <mat-icon matPrefix>tunnel</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Ingénieur assigné</mat-label>
+      <mat-select [(ngModel)]="visite.ingenieurId" required>
+        <mat-option *ngFor="let u of ingenieurs" [value]="u.id">
+          {{ u.prenom }} {{ u.nom }}
+        </mat-option>
+      </mat-select>
+      <mat-icon matPrefix>engineering</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Type de visite</mat-label>
+      <mat-select [(ngModel)]="visite.typeVisite" required>
+        <mat-option *ngFor="let t of typesVisite" [value]="t">{{ t }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Date prévisionnelle</mat-label>
+      <input matInput type="date" [(ngModel)]="visite.datePrevisionnelle" required>
+      <mat-icon matPrefix>calendar_today</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Priorité</mat-label>
+      <mat-select [(ngModel)]="visite.priorite">
+        <mat-option *ngFor="let p of priorites" [value]="p">{{ p }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="annuler()">Annuler</button>
+  <button mat-raised-button color="primary"
+          (click)="soumettre()"
+          [disabled]="!visite.tunnelId || !visite.ingenieurId || !visite.datePrevisionnelle">
+    <mat-icon>save</mat-icon>
+    Planifier
+  </button>
+</mat-dialog-actions>
