@@ -1,0 +1,187 @@
+<div class="detail-container" *ngIf="rapport">
+
+  <!-- WORKFLOW STEPPER HORIZONTAL -->
+  <div class="workflow-stepper">
+    <div *ngFor="let step of workflowSteps; let i = index; let last = last"
+         class="workflow-step"
+         [class.done]="step.done"
+         [class.active]="step.active">
+      <div class="workflow-dot">
+        <mat-icon *ngIf="step.done">check</mat-icon>
+        <span *ngIf="!step.done">{{ i + 1 }}</span>
+      </div>
+      <span class="workflow-label">{{ step.label }}</span>
+      <div class="workflow-line" *ngIf="!last"></div>
+    </div>
+  </div>
+
+  <!-- En-tête -->
+  <div class="detail-header">
+    <button mat-button (click)="retour()">
+      <mat-icon>arrow_back</mat-icon> Retour aux rapports
+    </button>
+    <div class="header-content">
+      <h1>Rapport de visite — {{ rapport.visite?.tunnelNom }}</h1>
+      <p class="subtitle">
+        {{ rapport.visite?.typeVisite }} — {{ rapport.visite?.dateRealisation | date:'dd/MM/yyyy' }}
+      </p>
+    </div>
+    <mat-chip [color]="getStatutColor(rapport.statut)" highlighted class="statut-chip">
+      {{ rapport.statut }}
+    </mat-chip>
+  </div>
+
+  <!-- Actions CHARGÉ DE MISSION uniquement -->
+  <div class="actions-bar" *ngIf="rapport.statut === 'SOUMIS' && isChargeMission">
+    <mat-card class="actions-card">
+      <mat-card-content>
+        <p><mat-icon>info</mat-icon> Ce rapport est en attente de votre validation.</p>
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" (click)="valider()">
+            <mat-icon>check_circle</mat-icon> Valider le rapport
+          </button>
+          <button mat-raised-button color="warn" (click)="retournerPourCorrection()">
+            <mat-icon>replay</mat-icon> Retourner pour correction
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Info INGÉNIEUR quand rapport soumis -->
+  <div class="actions-bar" *ngIf="rapport.statut === 'SOUMIS' && !isChargeMission">
+    <mat-card class="info-card">
+      <mat-card-content>
+        <mat-icon>hourglass_top</mat-icon>
+        Ce rapport est en attente de validation par le chargé de mission.
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Bouton modifier pour l'ingénieur auteur -->
+  <div class="actions-bar" *ngIf="isAuteurAndEditable">
+    <mat-card class="actions-card">
+      <mat-card-content>
+        <p><mat-icon>edit</mat-icon> Ce rapport est modifiable.</p>
+        <div class="action-buttons">
+          <button mat-raised-button color="primary" (click)="modifierRapport()">
+            <mat-icon>edit_note</mat-icon> Modifier le rapport
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Validation info -->
+  <div class="validation-info" *ngIf="rapport.statut === 'VALIDE'">
+    <mat-card class="valide-card">
+      <mat-card-content>
+        <mat-icon>verified</mat-icon>
+        Rapport validé par <strong>{{ rapport.validateur?.prenom }} {{ rapport.validateur?.nom }}</strong>
+        le {{ rapport.dateValidation | date:'dd/MM/yyyy à HH:mm' }}
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Correction info -->
+  <div class="correction-info" *ngIf="rapport.statut === 'A_CORRIGER'">
+    <mat-card class="correction-card">
+      <mat-card-content>
+        <mat-icon>warning</mat-icon>
+        Retourné pour correction : <strong>{{ rapport.commentaireRejet }}</strong>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- GRILLE DE CONTENU — 2 colonnes propres -->
+  <div class="detail-grid">
+
+    <mat-card class="detail-card">
+      <mat-card-header>
+        <mat-card-title><mat-icon>info</mat-icon> Informations générales</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="label">Tunnel</span>
+            <span class="value">{{ rapport.visite?.tunnelNom }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Localisation</span>
+            <span class="value">{{ rapport.visite?.tunnelLocalisation }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Type de visite</span>
+            <span class="value">{{ rapport.visite?.typeVisite }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Date de visite</span>
+            <span class="value">{{ rapport.visite?.dateRealisation | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Auteur</span>
+            <span class="value">{{ rapport.auteur?.prenom }} {{ rapport.auteur?.nom }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Version</span>
+            <span class="value">v{{ rapport.version }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Soumis le</span>
+            <span class="value">{{ rapport.dateSoumission | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">Chargé de mission</span>
+            <span class="value">{{ rapport.visite?.chargeMission?.prenom }} {{ rapport.visite?.chargeMission?.nom }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="detail-card">
+      <mat-card-header>
+        <mat-card-title><mat-icon>description</mat-icon> Constats de visite</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="constats-text">{{ rapport.constats }}</p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="detail-card" *ngIf="nonConformites.length > 0">
+      <mat-card-header>
+        <mat-card-title><mat-icon color="warn">warning</mat-icon> Non-conformités détectées</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="nc-list">
+          <div class="nc-item" *ngFor="let nc of nonConformites">
+            <div class="nc-header">
+              <mat-chip [color]="getCriticiteColor(nc.criticite)" highlighted>
+                {{ nc.criticite }}
+              </mat-chip>
+              <strong>{{ nc.description }}</strong>
+            </div>
+            <p class="nc-localisation">
+              <mat-icon>location_on</mat-icon> {{ nc.localisation }}
+            </p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="detail-card">
+      <mat-card-header>
+        <mat-card-title><mat-icon>lightbulb</mat-icon> Recommandations</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="constats-text">{{ rapport.recommandations }}</p>
+      </mat-card-content>
+    </mat-card>
+
+  </div>
+
+</div>
+
+<div class="loading" *ngIf="!rapport">
+  <mat-icon>hourglass_empty</mat-icon>
+  <p>Chargement du rapport...</p>
+</div>

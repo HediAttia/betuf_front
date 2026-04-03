@@ -1,0 +1,276 @@
+<div class="rapports-page">
+
+  <!-- EN-TÊTE -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1>Rapports</h1>
+      <p class="header-subtitle" *ngIf="isIngenieur">Gérez vos rapports de visite</p>
+      <p class="header-subtitle" *ngIf="isChargeMission">Validez et suivez les rapports de visite</p>
+    </div>
+    <button mat-flat-button color="primary" class="btn-nouveau" (click)="creerRapport()" *ngIf="isIngenieur">
+      <mat-icon>add</mat-icon>
+      Nouveau rapport
+    </button>
+  </div>
+
+  <!-- COMPTEURS -->
+  <div class="stat-row">
+    <!-- Chargé de mission -->
+    <ng-container *ngIf="isChargeMission">
+      <div class="stat-chip soumis" matTooltip="À valider">
+        <mat-icon>hourglass_top</mat-icon>
+        <span class="stat-count">{{ aValider.length }}</span>
+        <span class="stat-label">À valider</span>
+      </div>
+      <div class="stat-chip correction" matTooltip="Retournés pour correction">
+        <mat-icon>replay</mat-icon>
+        <span class="stat-count">{{ aCorrection.length }}</span>
+        <span class="stat-label">En correction</span>
+      </div>
+      <div class="stat-chip valide" matTooltip="Rapports validés">
+        <mat-icon>check_circle</mat-icon>
+        <span class="stat-count">{{ valides.length }}</span>
+        <span class="stat-label">Validé{{ valides.length > 1 ? 's' : '' }}</span>
+      </div>
+      <div class="stat-chip total" matTooltip="Total des rapports">
+        <mat-icon>description</mat-icon>
+        <span class="stat-count">{{ allRapports.length }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+    </ng-container>
+
+    <!-- Ingénieur -->
+    <ng-container *ngIf="isIngenieur">
+      <div class="stat-chip brouillon" matTooltip="Brouillons">
+        <mat-icon>edit_note</mat-icon>
+        <span class="stat-count">{{ brouillons.length }}</span>
+        <span class="stat-label">Brouillon{{ brouillons.length > 1 ? 's' : '' }}</span>
+      </div>
+      <div class="stat-chip soumis" matTooltip="En attente de validation">
+        <mat-icon>hourglass_top</mat-icon>
+        <span class="stat-count">{{ soumis.length }}</span>
+        <span class="stat-label">Soumis</span>
+      </div>
+      <div class="stat-chip valide" matTooltip="Validés">
+        <mat-icon>check_circle</mat-icon>
+        <span class="stat-count">{{ valides.length }}</span>
+        <span class="stat-label">Validé{{ valides.length > 1 ? 's' : '' }}</span>
+      </div>
+      <div class="stat-chip correction" *ngIf="aCorrection.length > 0" matTooltip="À corriger">
+        <mat-icon>replay</mat-icon>
+        <span class="stat-count">{{ aCorrection.length }}</span>
+        <span class="stat-label">À corriger</span>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- ==================== ONGLETS CHARGÉ DE MISSION ==================== -->
+  <mat-tab-group *ngIf="isChargeMission" [(selectedIndex)]="activeTab" animationDuration="200ms" class="rapports-tabs">
+
+    <!-- À VALIDER -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        À valider
+        <span class="tab-badge warn" *ngIf="aValider.length > 0">{{ aValider.length }}</span>
+      </ng-template>
+      <div class="tab-content">
+        <ng-container *ngFor="let r of aValider">
+          <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+        </ng-container>
+        <div class="empty-state" *ngIf="aValider.length === 0">
+          <mat-icon>check_circle_outline</mat-icon>
+          <p>Aucun rapport en attente de validation</p>
+          <span>Tous les rapports soumis ont été traités.</span>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- EN CORRECTION -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        En correction
+        <span class="tab-badge danger" *ngIf="aCorrection.length > 0">{{ aCorrection.length }}</span>
+      </ng-template>
+      <div class="tab-content">
+        <ng-container *ngFor="let r of aCorrection">
+          <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+        </ng-container>
+        <div class="empty-state" *ngIf="aCorrection.length === 0">
+          <mat-icon>thumb_up</mat-icon>
+          <p>Aucun rapport en correction</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- VALIDÉS -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Validés
+        <span class="tab-badge success" *ngIf="valides.length > 0">{{ valides.length }}</span>
+      </ng-template>
+      <div class="tab-content">
+        <ng-container *ngFor="let r of valides">
+          <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+        </ng-container>
+        <div class="empty-state" *ngIf="valides.length === 0">
+          <mat-icon>verified</mat-icon>
+          <p>Aucun rapport validé</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- TOUS -->
+    <mat-tab label="Tous">
+      <div class="tab-content">
+        <ng-container *ngFor="let r of allRapports">
+          <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+        </ng-container>
+        <div class="empty-state" *ngIf="allRapports.length === 0 && !loading">
+          <mat-icon>inbox</mat-icon>
+          <p>Aucun rapport</p>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+
+  <!-- ==================== ONGLETS INGÉNIEUR ==================== -->
+  <mat-tab-group *ngIf="isIngenieur" [(selectedIndex)]="activeTab" animationDuration="200ms" class="rapports-tabs">
+
+    <!-- TOUS -->
+    <mat-tab label="Tous">
+      <div class="tab-content">
+
+        <ng-container *ngIf="aCorrection.length > 0">
+          <h3 class="section-title correction">
+            <mat-icon>replay</mat-icon> À corriger
+          </h3>
+          <ng-container *ngFor="let r of aCorrection">
+            <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+          </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="brouillons.length > 0">
+          <h3 class="section-title brouillon">
+            <mat-icon>edit_note</mat-icon> Brouillons
+          </h3>
+          <ng-container *ngFor="let r of brouillons">
+            <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+          </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="soumis.length > 0">
+          <h3 class="section-title soumis">
+            <mat-icon>hourglass_top</mat-icon> En attente de validation
+          </h3>
+          <ng-container *ngFor="let r of soumis">
+            <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+          </ng-container>
+        </ng-container>
+
+        <ng-container *ngIf="valides.length > 0">
+          <h3 class="section-title valide">
+            <mat-icon>check_circle</mat-icon> Validés
+          </h3>
+          <ng-container *ngFor="let r of valides">
+            <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+          </ng-container>
+        </ng-container>
+
+        <div class="empty-state" *ngIf="allRapports.length === 0 && !loading">
+          <mat-icon>inbox</mat-icon>
+          <p>Aucun rapport</p>
+          <span>Créez votre premier rapport de visite.</span>
+          <button mat-stroked-button color="primary" (click)="creerRapport()">
+            <mat-icon>add</mat-icon> Créer un rapport
+          </button>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- BROUILLONS -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Brouillons
+        <span class="tab-badge" *ngIf="brouillons.length > 0">{{ brouillons.length }}</span>
+      </ng-template>
+      <div class="tab-content">
+        <ng-container *ngFor="let r of brouillons">
+          <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+        </ng-container>
+        <div class="empty-state" *ngIf="brouillons.length === 0">
+          <mat-icon>edit_note</mat-icon>
+          <p>Aucun brouillon</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- SOUMIS -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        En attente
+        <span class="tab-badge warn" *ngIf="soumis.length > 0">{{ soumis.length }}</span>
+      </ng-template>
+      <div class="tab-content">
+        <ng-container *ngFor="let r of soumis">
+          <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+        </ng-container>
+        <div class="empty-state" *ngIf="soumis.length === 0">
+          <mat-icon>hourglass_empty</mat-icon>
+          <p>Aucun rapport en attente</p>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- VALIDÉS -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Validés
+        <span class="tab-badge success" *ngIf="valides.length > 0">{{ valides.length }}</span>
+      </ng-template>
+      <div class="tab-content">
+        <ng-container *ngFor="let r of valides">
+          <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+        </ng-container>
+        <div class="empty-state" *ngIf="valides.length === 0">
+          <mat-icon>verified</mat-icon>
+          <p>Aucun rapport validé</p>
+        </div>
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+
+</div>
+
+<!-- ==================== TEMPLATE LIGNE RAPPORT ==================== -->
+<ng-template #rapportRow let-r>
+  <div class="rapport-row" (click)="ouvrirRapport(r)">
+    <div class="rapport-row-icon" [ngClass]="getStatutClass(r.statut)">
+      <mat-icon>{{ getStatutIcon(r.statut) }}</mat-icon>
+    </div>
+    <div class="rapport-row-body">
+      <div class="rapport-row-title">
+        <span class="rapport-tunnel">{{ r.visite?.tunnelNom || 'Tunnel' }}</span>
+        <span class="rapport-type" *ngIf="r.visite?.typeVisite">{{ r.visite?.typeVisite }}</span>
+      </div>
+      <div class="rapport-row-meta">
+        <!-- Auteur (visible pour le chargé de mission) -->
+        <span *ngIf="isChargeMission && r.auteur" class="rapport-auteur">
+          Par {{ r.auteur?.prenom }} {{ r.auteur?.nom }}
+        </span>
+        <span *ngIf="r.visite?.dateRealisation">Visite du {{ r.visite?.dateRealisation | date:'dd/MM/yyyy' }}</span>
+        <span *ngIf="r.dateSoumission">· Soumis le {{ r.dateSoumission | date:'dd/MM/yyyy' }}</span>
+        <span *ngIf="r.dateValidation">· Validé le {{ r.dateValidation | date:'dd/MM/yyyy' }}</span>
+        <span class="rapport-version" *ngIf="r.version > 1">v{{ r.version }}</span>
+      </div>
+      <div class="rapport-row-comment" *ngIf="r.statut === 'A_CORRIGER' && r.commentaireRejet">
+        <mat-icon>comment</mat-icon> {{ r.commentaireRejet }}
+      </div>
+    </div>
+    <span class="rapport-badge" [ngClass]="getStatutClass(r.statut)">
+      {{ getStatutLabel(r.statut) }}
+    </span>
+    <mat-icon class="rapport-row-chevron">chevron_right</mat-icon>
+  </div>
+</ng-template>

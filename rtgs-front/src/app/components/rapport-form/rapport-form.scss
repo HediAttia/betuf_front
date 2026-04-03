@@ -1,0 +1,537 @@
+// =============================================
+//  PALETTE (fidèle maquette RTGS)
+// =============================================
+$primary: #1a5276;
+$primary-light: #eaf2f8;
+$accent: #2980b9;
+$warn: #e67e22;
+$warn-light: #fef5e7;
+$success: #27ae60;
+$success-light: #eafaf1;
+$danger: #c0392b;
+$danger-light: #fdedec;
+$gray-50: #fafbfc;
+$gray-100: #f4f6f7;
+$gray-200: #e5e8e8;
+$gray-300: #d5d8dc;
+$gray-400: #b3b6b7;
+$gray-500: #85929e;
+$gray-700: #566573;
+$gray-900: #1c2833;
+$radius: 8px;
+$radius-sm: 5px;
+$shadow-card: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+.rapport-form-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px 48px;
+}
+
+// =============================================
+//  BREADCRUMB
+// =============================================
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: $gray-500;
+  margin-bottom: 16px;
+
+  a {
+    color: $accent;
+    cursor: pointer;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: $gray-400;
+  }
+
+  .breadcrumb-current {
+    color: $gray-700;
+    font-weight: 500;
+  }
+}
+
+// =============================================
+//  WORKFLOW STEPPER HORIZONTAL
+// =============================================
+.workflow-stepper {
+  display: flex;
+  align-items: center;
+  padding: 20px 16px;
+  margin-bottom: 20px;
+}
+
+.workflow-step {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.workflow-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  background: $gray-200;
+  color: $gray-500;
+  flex-shrink: 0;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+.workflow-label {
+  font-size: 13px;
+  color: $gray-500;
+  font-weight: 500;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+
+.workflow-line {
+  flex: 1 1 auto;
+  min-width: 20px;
+  max-width: 80px;
+  height: 2px;
+  background: $gray-300;
+  margin: 0 14px;
+}
+
+.workflow-step.done {
+  .workflow-dot { background: $success; color: white; }
+  .workflow-label { color: $gray-700; }
+  .workflow-line { background: $success; }
+}
+
+.workflow-step.active {
+  .workflow-dot { background: $primary; color: white; box-shadow: 0 0 0 4px rgba($primary, 0.15); }
+  .workflow-label { color: $primary; font-weight: 700; }
+}
+
+// =============================================
+//  EN-TÊTE RAPPORT
+// =============================================
+.rapport-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.rapport-header-left {
+  h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: $gray-900;
+    display: inline;
+  }
+
+  .rapport-sous-titre {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: $gray-500;
+  }
+}
+
+.rapport-statut-badge {
+  display: inline-block;
+  margin-left: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 12px;
+  vertical-align: middle;
+
+  &.badge-brouillon { background: $gray-100; color: $gray-700; }
+  &.badge-soumis { background: $warn-light; color: $warn; }
+  &.badge-valide { background: $success-light; color: $success; }
+  &.badge-rejete, &.badge-a_corriger { background: $danger-light; color: $danger; }
+}
+
+.rapport-header-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+  button { border-radius: $radius-sm !important; font-weight: 600 !important; }
+}
+
+// Bannière rejet
+.reject-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 18px;
+  background: $danger-light;
+  border: 1px solid #e6b0aa;
+  border-radius: $radius;
+  margin-bottom: 20px;
+  color: $danger;
+
+  mat-icon { margin-top: 2px; flex-shrink: 0; }
+
+  strong { display: block; font-size: 14px; margin-bottom: 4px; }
+  p { margin: 0; font-size: 13px; color: $gray-700; }
+}
+
+.loading-bar { margin-bottom: 16px; }
+
+// =============================================
+//  LAYOUT 2 COLONNES
+// =============================================
+.form-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 24px;
+  align-items: start;
+
+  @media (max-width: 960px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+// =============================================
+//  COLONNE GAUCHE — FORMULAIRE
+// =============================================
+.form-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.form-section {
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  box-shadow: $shadow-card;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: $gray-900;
+  margin: 0 0 20px;
+}
+
+.full-width { width: 100%; }
+
+.field-row { margin-bottom: 8px; }
+
+.field-select { width: 100%; max-width: 600px; }
+
+// Info visite grid
+.visite-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 12px;
+
+  .full-width { grid-column: 1 / -1; }
+}
+
+.info-field {
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: $gray-500;
+    margin-bottom: 6px;
+  }
+  .info-value {
+    font-size: 14px;
+    color: $gray-900;
+    padding: 10px 14px;
+    background: $gray-50;
+    border: 1px solid $gray-200;
+    border-radius: $radius-sm;
+  }
+}
+
+.hint-warn { color: $warn !important; }
+
+// =============================================
+//  NON-CONFORMITÉS
+// =============================================
+.nc-items {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.nc-inline {
+  border: 1px solid $gray-200;
+  border-radius: $radius-sm;
+  padding: 12px 16px;
+  background: $gray-50;
+}
+
+.nc-inline-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nc-code {
+  font-size: 14px;
+  font-weight: 700;
+  color: $primary;
+  white-space: nowrap;
+}
+
+.nc-dot { color: $gray-400; }
+
+.nc-desc {
+  font-size: 14px;
+  color: $gray-900;
+}
+
+.nc-desc-field {
+  flex: 1;
+  min-width: 180px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+.nc-criticite-select {
+  width: 130px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+.nc-severite {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 10px;
+  white-space: nowrap;
+
+  &.sev-faible { background: $success-light; color: $success; }
+  &.sev-moderee { background: $warn-light; color: $warn; }
+  &.sev-elevee { background: #fff3cd; color: #856404; }
+  &.sev-critique { background: $danger-light; color: $danger; }
+}
+
+.nc-action { margin-left: auto; }
+
+.nc-inline-details {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.nc-loc-field {
+  width: 100%;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper { display: none; }
+}
+
+.nc-loc-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: $gray-400;
+}
+
+.nc-loc-text {
+  font-size: 13px;
+  color: $gray-500;
+}
+
+.btn-add-nc {
+  font-size: 13px;
+  color: $accent;
+  border-color: $gray-300;
+  border-style: dashed;
+  width: 100%;
+  padding: 10px !important;
+
+  &:hover {
+    background: $primary-light;
+    border-color: $accent;
+  }
+}
+
+.empty-nc {
+  font-size: 13px;
+  color: $gray-500;
+  font-style: italic;
+  padding: 8px 0;
+}
+
+// =============================================
+//  COLONNE DROITE — SIDEBAR
+// =============================================
+.form-sidebar {
+  position: sticky;
+  top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-card {
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius;
+  padding: 20px;
+  box-shadow: $shadow-card;
+}
+
+.sidebar-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: $gray-900;
+  margin: 0 0 16px;
+}
+
+// Timeline
+.timeline {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding-bottom: 20px;
+  position: relative;
+
+  &:last-child { padding-bottom: 0; }
+
+  &:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 16px;
+    width: 2px;
+    height: calc(100% - 8px);
+    background: $gray-200;
+  }
+}
+
+.timeline-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 2px;
+  z-index: 1;
+}
+
+.timeline-done .timeline-dot { background: $success; }
+.timeline-current .timeline-dot { background: $accent; }
+.timeline-pending .timeline-dot { background: $gray-300; }
+
+.timeline-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.timeline-date { font-size: 12px; font-weight: 600; color: $gray-700; }
+.timeline-label { font-size: 13px; color: $gray-700; }
+
+.timeline-pending .timeline-date,
+.timeline-pending .timeline-label { color: $gray-400; }
+
+// Warning
+.sidebar-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: $warn-light;
+  border: 1px solid #f0d9a8;
+  border-radius: $radius;
+  font-size: 12px;
+  color: $warn;
+  line-height: 1.5;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; margin-top: 1px; }
+}
+
+// Complétude
+.completude-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.completude-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.completude-label { font-size: 13px; color: $gray-700; }
+
+.completude-status {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+
+  &.status-ok { color: $success; }
+  &.status-pending { color: $gray-400; }
+  &.status-optional { color: $gray-400; font-style: italic; font-weight: 400; }
+}
+
+// Validateur désigné
+.validateur-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.validateur-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: $primary;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.validateur-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.validateur-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: $gray-900;
+}
+
+.validateur-role {
+  font-size: 12px;
+  color: $gray-500;
+}

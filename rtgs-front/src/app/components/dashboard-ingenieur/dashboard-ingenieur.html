@@ -1,0 +1,166 @@
+<div class="dashboard-page">
+
+  <!-- EN-TÊTE -->
+  <div class="dash-header">
+    <div>
+      <h1>Tableau de bord</h1>
+      <p class="dash-subtitle">Bienvenue, {{ nomComplet }}</p>
+    </div>
+    <button mat-flat-button color="primary" class="btn-rediger" (click)="allerRapports()">
+      <mat-icon>add</mat-icon> Rédiger un rapport
+    </button>
+  </div>
+
+  <!-- COMPTEURS (cliquables) -->
+  <div class="stats-grid">
+    <div class="stat-card clickable" (click)="allerRapports()" matTooltip="Voir toutes les visites">
+      <mat-icon class="stat-icon visites">assignment</mat-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ totalVisites }}</span>
+        <span class="stat-label">Visites assignées</span>
+      </div>
+    </div>
+    <div class="stat-card clickable" (click)="allerRapportsBrouillons()" matTooltip="Voir les brouillons">
+      <mat-icon class="stat-icon brouillons">edit_note</mat-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ rapportsBrouillon }}</span>
+        <span class="stat-label">Brouillons</span>
+      </div>
+    </div>
+    <div class="stat-card clickable" (click)="allerRapportsSoumis()" matTooltip="Voir les rapports soumis">
+      <mat-icon class="stat-icon soumis">hourglass_top</mat-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ rapportsSoumis }}</span>
+        <span class="stat-label">En attente</span>
+      </div>
+    </div>
+    <div class="stat-card clickable" (click)="allerRapportsValides()" matTooltip="Voir les rapports validés">
+      <mat-icon class="stat-icon valides">check_circle</mat-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ rapportsValides }}</span>
+        <span class="stat-label">Validés</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ALERTE : RAPPORTS À CORRIGER -->
+  <div class="alert-section" *ngIf="rapportsUrgents.length > 0">
+    <div class="alert-banner">
+      <div class="alert-header">
+        <mat-icon>error_outline</mat-icon>
+        <strong>{{ rapportsUrgents.length }} rapport{{ rapportsUrgents.length > 1 ? 's' : '' }} à corriger</strong>
+      </div>
+      <p class="alert-text">Ces rapports ont été retournés par le chargé de mission. Veuillez les corriger en priorité.</p>
+    </div>
+
+    <div class="urgent-list">
+      <div class="urgent-item" *ngFor="let r of rapportsUrgents" (click)="ouvrirRapport(r)">
+        <div class="urgent-left">
+          <mat-icon class="urgent-icon">replay</mat-icon>
+          <div>
+            <span class="urgent-tunnel">{{ r.visite?.tunnelNom || 'Tunnel' }}</span>
+            <span class="urgent-type">{{ r.visite?.typeVisite }}</span>
+          </div>
+        </div>
+        <div class="urgent-comment" *ngIf="r.commentaireRejet">
+          <mat-icon>comment</mat-icon>
+          {{ r.commentaireRejet }}
+        </div>
+        <button mat-stroked-button color="warn" class="urgent-btn">
+          <mat-icon>edit</mat-icon> Corriger
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISITES EN ATTENTE DE RAPPORT -->
+  <section class="dash-section" *ngIf="visitesEnAttenteRapport.length > 0">
+    <div class="section-header">
+      <h2>
+        <mat-icon>pending_actions</mat-icon>
+        Visites en attente de rapport
+      </h2>
+      <span class="section-count">{{ visitesEnAttenteRapport.length }}</span>
+    </div>
+    <p class="section-desc">Ces visites ont été réalisées mais n'ont pas encore de rapport associé.</p>
+
+    <div class="visite-cards">
+      <div class="visite-card todo" *ngFor="let v of visitesEnAttenteRapport">
+        <div class="visite-card-left">
+          <div class="visite-card-icon todo">
+            <mat-icon>description</mat-icon>
+          </div>
+          <div class="visite-card-info">
+            <span class="visite-tunnel">{{ v.tunnelNom || 'Tunnel' }}</span>
+            <span class="visite-meta">{{ v.typeVisite }} · Réalisée le {{ v.dateRealisation | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+        <button mat-flat-button color="primary" class="visite-action" (click)="redigerRapport(v)">
+          <mat-icon>edit_note</mat-icon> Rédiger le rapport
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- VISITES PLANIFIÉES -->
+  <section class="dash-section" *ngIf="visitesPlanifiees.length > 0">
+    <div class="section-header">
+      <h2>
+        <mat-icon>event</mat-icon>
+        Visites planifiées
+      </h2>
+      <span class="section-count">{{ visitesPlanifiees.length }}</span>
+    </div>
+    <p class="section-desc">Visites à venir ou en attente de réalisation.</p>
+
+    <div class="visite-cards">
+      <div class="visite-card planned" *ngFor="let v of visitesPlanifiees">
+        <div class="visite-card-left">
+          <div class="visite-card-icon planned">
+            <mat-icon>event</mat-icon>
+          </div>
+          <div class="visite-card-info">
+            <span class="visite-tunnel">{{ v.tunnelNom || 'Tunnel' }}</span>
+            <span class="visite-meta">{{ v.typeVisite }} · Prévue le {{ v.datePrevisionnelle | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+        <button mat-stroked-button color="primary" class="visite-action" (click)="marquerRealisee(v.id)">
+          <mat-icon>check</mat-icon> Marquer réalisée
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- RAPPORTS EN COURS -->
+  <section class="dash-section" *ngIf="visitesAvecRapport.length > 0">
+    <div class="section-header">
+      <h2>
+        <mat-icon>folder_open</mat-icon>
+        Mes rapports récents
+      </h2>
+      <a class="section-link" (click)="allerRapports()">Voir tous →</a>
+    </div>
+
+    <div class="rapport-rows">
+      <div class="rapport-row" *ngFor="let v of visitesAvecRapport" (click)="ouvrirRapportVisite(v)">
+        <div class="rapport-row-left">
+          <span class="rapport-tunnel">{{ v.tunnelNom || v.rapport?.visite?.tunnelNom || 'Tunnel' }}</span>
+          <span class="rapport-meta">{{ v.typeVisite }} · {{ v.dateRealisation | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <span class="rapport-chip" [ngClass]="getStatutRapportClass(v.rapport!.statut)">
+          {{ getStatutRapportLabel(v.rapport!.statut) }}
+        </span>
+        <span class="rapport-version" *ngIf="v.rapport!.version > 1">v{{ v.rapport!.version }}</span>
+        <mat-icon class="rapport-chevron">chevron_right</mat-icon>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMPTY STATE -->
+  <div class="empty-state" *ngIf="!loading && totalVisites === 0">
+    <mat-icon>inbox</mat-icon>
+    <p>Aucune visite assignée</p>
+    <span>Les visites apparaîtront ici lorsqu'un chargé de mission vous en assignera.</span>
+  </div>
+
+</div>

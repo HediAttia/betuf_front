@@ -1,0 +1,85 @@
+<div class="app-shell" *ngIf="isLoggedIn()" [class.sidebar-collapsed]="sidebarCollapsed">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <span class="logo-icon">🚇</span>
+      <div class="logo-text" *ngIf="!sidebarCollapsed">
+        <div class="logo-title">RTGS</div>
+        <div class="logo-sub">BETuF</div>
+      </div>
+    </div>
+
+    <button class="sidebar-toggle" (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Ouvrir le menu' : 'Réduire le menu'">
+      <mat-icon>{{ sidebarCollapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+    </button>
+
+    <nav class="sidebar-nav">
+
+      <!-- Chargé de mission -->
+      <ng-container *ngIf="role === 'CHARGE_MISSION'">
+        <a class="nav-item" routerLink="/dashboard" routerLinkActive="active" [matTooltip]="sidebarCollapsed ? 'Tableau de bord' : ''" matTooltipPosition="right">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label" *ngIf="!sidebarCollapsed">Tableau de bord</span>
+        </a>
+        <a class="nav-item" routerLink="/tunnels" routerLinkActive="active" [matTooltip]="sidebarCollapsed ? 'Tunnels' : ''" matTooltipPosition="right">
+          <span class="nav-icon">🚇</span>
+          <span class="nav-label" *ngIf="!sidebarCollapsed">Tunnels</span>
+        </a>
+        <a class="nav-item" routerLink="/rapports" routerLinkActive="active" [matTooltip]="sidebarCollapsed ? 'Rapports' : ''" matTooltipPosition="right">
+          <span class="nav-icon">📋</span>
+          <span class="nav-label" *ngIf="!sidebarCollapsed">Rapports</span>
+        </a>
+      </ng-container>
+
+      <!-- Ingénieur -->
+      <ng-container *ngIf="role === 'INGENIEUR'">
+        <a class="nav-item" routerLink="/dashboard-ingenieur" routerLinkActive="active" [matTooltip]="sidebarCollapsed ? 'Tableau de bord' : ''" matTooltipPosition="right">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label" *ngIf="!sidebarCollapsed">Tableau de bord</span>
+        </a>
+        <a class="nav-item" routerLink="/rapports" routerLinkActive="active" [matTooltip]="sidebarCollapsed ? 'Rapports' : ''" matTooltipPosition="right">
+          <span class="nav-icon">📋</span>
+          <span class="nav-label" *ngIf="!sidebarCollapsed">Rapports</span>
+        </a>
+      </ng-container>
+
+      <!-- Exploitant -->
+      <ng-container *ngIf="role === 'EXPLOITANT'">
+        <a class="nav-item" routerLink="/dashboard-exploitant" routerLinkActive="active" [matTooltip]="sidebarCollapsed ? 'Tableau de bord' : ''" matTooltipPosition="right">
+          <span class="nav-icon">📊</span>
+          <span class="nav-label" *ngIf="!sidebarCollapsed">Tableau de bord</span>
+        </a>
+        <a class="nav-item" routerLink="/rapports" routerLinkActive="active" [matTooltip]="sidebarCollapsed ? 'Rapports validés' : ''" matTooltipPosition="right">
+          <span class="nav-icon">📋</span>
+          <span class="nav-label" *ngIf="!sidebarCollapsed">Rapports validés</span>
+        </a>
+      </ng-container>
+
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">{{ initiales }}</div>
+        <div class="user-details" *ngIf="!sidebarCollapsed">
+          <div class="user-name">{{ nomComplet }}</div>
+          <div class="user-role">{{ roleLabel }}</div>
+        </div>
+      </div>
+      <button class="logout-btn" (click)="logout()" title="Se déconnecter">
+        ↩
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <router-outlet />
+  </main>
+
+</div>
+
+<!-- Page login (pas de sidebar) -->
+<ng-container *ngIf="!isLoggedIn()">
+  <router-outlet />
+</ng-container>

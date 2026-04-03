@@ -1,0 +1,59 @@
+<div class="login-page">
+
+  <div class="top-banner">
+    <span class="top-brand">RTGS</span>
+    <span class="top-sep">—</span>
+    <span class="top-desc">Référentiel des Tunnels et Gestion du Suivi</span>
+  </div>
+
+
+  <div class="login-box">
+
+    <div class="login-branding">
+      <div class="brand-logo">🚇</div>
+      <div class="brand-title">RTGS</div>
+      <div class="brand-subtitle">BETUF</div>
+      <p class="brand-desc">Référentiel des Tunnels et Gestion du Suivi</p>
+    </div>
+
+    <div class="login-form">
+
+      <div class="form-group">
+        <label>Adresse email</label>
+        <input type="email"
+               class="form-input"
+               [(ngModel)]="email"
+               placeholder="prenom.nom@betuf.fr"
+               (keyup.enter)="login()">
+      </div>
+
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <div class="input-wrapper">
+          <input [type]="showPassword ? 'text' : 'password'"
+                 class="form-input"
+                 [(ngModel)]="password"
+                 (keyup.enter)="login()">
+          <button class="toggle-pwd" (click)="showPassword = !showPassword">
+            {{ showPassword ? '🙈' : '👁' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="error-msg" *ngIf="erreur">
+        ⚠️ {{ erreur }}
+      </div>
+
+      <button class="btn-login"
+              (click)="login()"
+              [disabled]="loading || !email || !password">
+        {{ loading ? 'Connexion...' : 'Se connecter →' }}
+      </button>
+
+    </div>
+
+    <p class="brand-footer">Ministère de l'Écologie — Bureau d'Études des Tunnels de France</p>
+
+  </div>
+
+</div>

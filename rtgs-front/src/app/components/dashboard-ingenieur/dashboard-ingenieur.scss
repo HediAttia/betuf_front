@@ -1,0 +1,461 @@
+$primary: #1a5276;
+$primary-light: #eaf2f8;
+$accent: #2980b9;
+$warn: #e67e22;
+$warn-light: #fef5e7;
+$success: #27ae60;
+$success-light: #eafaf1;
+$danger: #c0392b;
+$danger-light: #fdedec;
+$gray-50: #fafbfc;
+$gray-100: #f4f6f7;
+$gray-200: #e5e8e8;
+$gray-300: #d5d8dc;
+$gray-400: #b3b6b7;
+$gray-500: #85929e;
+$gray-700: #566573;
+$gray-900: #1c2833;
+$radius: 10px;
+$radius-sm: 6px;
+
+.dashboard-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+}
+
+// =============================================
+//  HEADER
+// =============================================
+.dash-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  h1 {
+    margin: 0;
+    font-size: 26px;
+    font-weight: 700;
+    color: $gray-900;
+  }
+
+  .dash-subtitle {
+    margin: 4px 0 0;
+    font-size: 14px;
+    color: $gray-500;
+  }
+}
+
+.btn-rediger {
+  border-radius: $radius-sm !important;
+  font-weight: 600 !important;
+}
+
+// =============================================
+//  STATS GRID
+// =============================================
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+
+  @media (max-width: 800px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.15s, border-color 0.15s;
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      border-color: $gray-300;
+    }
+  }
+}
+
+.stat-icon {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 12px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px !important;
+  flex-shrink: 0;
+
+  &.visites { background: $primary-light; color: $primary; }
+  &.brouillons { background: $gray-100; color: $gray-700; }
+  &.soumis { background: $warn-light; color: $warn; }
+  &.valides { background: $success-light; color: $success; }
+}
+
+.stat-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-number {
+  font-size: 28px;
+  font-weight: 800;
+  color: $gray-900;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: $gray-500;
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+// =============================================
+//  ALERTE RAPPORTS À CORRIGER
+// =============================================
+.alert-section {
+  margin-bottom: 28px;
+}
+
+.alert-banner {
+  background: $danger-light;
+  border: 1px solid #e6b0aa;
+  border-radius: $radius;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+
+.alert-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $danger;
+  font-size: 15px;
+
+  mat-icon { font-size: 22px; width: 22px; height: 22px; }
+}
+
+.alert-text {
+  margin: 6px 0 0;
+  font-size: 13px;
+  color: $gray-700;
+  padding-left: 30px;
+}
+
+.urgent-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.urgent-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: white;
+  border: 1px solid #e6b0aa;
+  border-left: 4px solid $danger;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); }
+}
+
+.urgent-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 0 auto;
+}
+
+.urgent-icon {
+  color: $danger;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.urgent-tunnel {
+  font-size: 15px;
+  font-weight: 600;
+  color: $gray-900;
+  display: block;
+}
+
+.urgent-type {
+  font-size: 12px;
+  color: $gray-500;
+  display: block;
+}
+
+.urgent-comment {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: $danger;
+  background: $danger-light;
+  padding: 6px 10px;
+  border-radius: 4px;
+  min-width: 0;
+
+  mat-icon { font-size: 14px; width: 14px; height: 14px; flex-shrink: 0; }
+}
+
+.urgent-btn {
+  flex-shrink: 0;
+  font-weight: 600 !important;
+  border-radius: $radius-sm !important;
+}
+
+// =============================================
+//  SECTIONS
+// =============================================
+.dash-section {
+  margin-bottom: 32px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: $gray-900;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      color: $primary;
+    }
+  }
+}
+
+.section-count {
+  background: $primary;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.section-desc {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: $gray-500;
+}
+
+.section-link {
+  font-size: 13px;
+  color: $accent;
+  cursor: pointer;
+  font-weight: 600;
+
+  &:hover { text-decoration: underline; }
+}
+
+// =============================================
+//  VISITE CARDS
+// =============================================
+.visite-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.visite-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-sm;
+  gap: 16px;
+  transition: box-shadow 0.15s;
+
+  &:hover { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+
+  &.todo {
+    border-left: 4px solid $warn;
+  }
+
+  &.planned {
+    border-left: 4px solid $accent;
+  }
+}
+
+.visite-card-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.visite-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  mat-icon { font-size: 22px; width: 22px; height: 22px; }
+
+  &.todo { background: $warn-light; color: $warn; }
+  &.planned { background: $primary-light; color: $accent; }
+}
+
+.visite-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.visite-tunnel {
+  font-size: 15px;
+  font-weight: 600;
+  color: $gray-900;
+}
+
+.visite-meta {
+  font-size: 12px;
+  color: $gray-500;
+}
+
+.visite-action {
+  flex-shrink: 0;
+  border-radius: $radius-sm !important;
+  font-weight: 600 !important;
+}
+
+// =============================================
+//  RAPPORT ROWS
+// =============================================
+.rapport-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rapport-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: white;
+  border: 1px solid $gray-200;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition: box-shadow 0.15s, border-color 0.15s;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-color: $gray-300;
+  }
+}
+
+.rapport-row-left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rapport-tunnel {
+  font-size: 14px;
+  font-weight: 600;
+  color: $gray-900;
+}
+
+.rapport-meta {
+  font-size: 12px;
+  color: $gray-500;
+}
+
+.rapport-chip {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  &.chip-brouillon { background: $gray-100; color: $gray-700; }
+  &.chip-soumis { background: $warn-light; color: $warn; }
+  &.chip-valide { background: $success-light; color: $success; }
+  &.chip-correction { background: $danger-light; color: $danger; }
+}
+
+.rapport-version {
+  font-size: 11px;
+  font-weight: 700;
+  color: $primary;
+  background: $primary-light;
+  padding: 2px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.rapport-chevron {
+  color: $gray-300;
+  flex-shrink: 0;
+}
+
+// =============================================
+//  EMPTY STATE
+// =============================================
+.empty-state {
+  text-align: center;
+  padding: 64px 20px;
+  color: $gray-500;
+
+  mat-icon {
+    font-size: 56px;
+    width: 56px;
+    height: 56px;
+    color: $gray-300;
+    margin-bottom: 12px;
+  }
+
+  p {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 600;
+    color: $gray-700;
+  }
+
+  span {
+    font-size: 13px;
+  }
+}

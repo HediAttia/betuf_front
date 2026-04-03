@@ -1,0 +1,179 @@
+<div class="tunnel-detail-page" *ngIf="tunnel">
+
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb">
+    <a (click)="retour()">Référentiel tunnels</a>
+    <mat-icon>chevron_right</mat-icon>
+    <span class="breadcrumb-current">{{ tunnel.nom }}</span>
+  </nav>
+
+  <!-- EN-TÊTE TUNNEL -->
+  <div class="tunnel-header">
+    <div class="tunnel-header-left">
+      <h1>
+        {{ tunnel.nom }}
+        <span class="tunnel-statut-badge" [ngClass]="getStatutTunnelClass(tunnel.statut)">
+          {{ getStatutTunnelLabel(tunnel.statut) }}
+        </span>
+      </h1>
+      <p class="tunnel-meta">
+        {{ tunnel.localisation }} · {{ tunnel.typeTunnel }} · {{ tunnel.departement ? 'Dép. ' + tunnel.departement : '' }}
+      </p>
+    </div>
+    <div class="tunnel-header-actions">
+      <button mat-stroked-button (click)="planifierVisite()">
+        <mat-icon>event</mat-icon> Planifier visite
+      </button>
+    </div>
+  </div>
+
+  <!-- ONGLETS -->
+  <mat-tab-group [(selectedIndex)]="activeTab" animationDuration="200ms" class="tunnel-tabs">
+
+    <!-- ========== INFORMATIONS GÉNÉRALES ========== -->
+    <mat-tab label="Informations générales">
+      <div class="tab-content">
+        <div class="info-two-col">
+
+          <!-- Identification -->
+          <div class="info-card">
+            <h3>Identification</h3>
+            <div class="info-table">
+              <div class="info-row">
+                <span class="info-label">Nom de l'ouvrage</span>
+                <span class="info-value">{{ tunnel.nom }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Type d'ouvrage</span>
+                <span class="info-value">{{ tunnel.typeTunnel }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Longueur</span>
+                <span class="info-value">{{ tunnel.longueurM | number }} m</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Statut</span>
+                <span class="info-value">
+                  <span class="inline-badge" [ngClass]="getStatutTunnelClass(tunnel.statut)">
+                    {{ getStatutTunnelLabel(tunnel.statut) }}
+                  </span>
+                </span>
+              </div>
+              <div class="info-row" *ngIf="tunnel.idMagali">
+                <span class="info-label">Identifiant MAGALI</span>
+                <span class="info-value mono">{{ tunnel.idMagali }}</span>
+              </div>
+              <div class="info-row" *ngIf="tunnel.idLagora">
+                <span class="info-label">Identifiant LAGORA</span>
+                <span class="info-value mono">{{ tunnel.idLagora }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Périodicité de visite</span>
+                <span class="info-value">{{ tunnel.periodiciteMois }} mois</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Localisation & exploitant -->
+          <div class="info-card">
+            <h3>Localisation &amp; exploitant</h3>
+            <div class="info-table">
+              <div class="info-row">
+                <span class="info-label">Localisation</span>
+                <span class="info-value">{{ tunnel.localisation }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Département</span>
+                <span class="info-value">{{ tunnel.departement }}</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">Exploitant</span>
+                <span class="info-value">{{ tunnel.exploitantNom || '—' }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ========== VISITES & HISTORIQUE ========== -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Visites &amp; historique
+        <span class="tab-count" *ngIf="visites.length > 0">{{ visites.length }}</span>
+      </ng-template>
+      <div class="tab-content">
+
+        <div class="section-bar">
+          <h3>Historique des visites</h3>
+          <button mat-flat-button color="primary" (click)="planifierVisite()">
+            <mat-icon>add</mat-icon> Planifier une visite
+          </button>
+        </div>
+
+        <div class="visites-table" *ngIf="visites.length > 0">
+          <div class="table-header">
+            <span class="col-date">DATE</span>
+            <span class="col-type">TYPE</span>
+            <span class="col-statut">STATUT</span>
+            <span class="col-rapport">STATUT RAPPORT</span>
+            <span class="col-action">ACTION</span>
+          </div>
+
+          <div class="table-row" *ngFor="let v of visites">
+            <span class="col-date">
+              {{ (v.dateRealisation || v.datePrevisionnelle) | date:'dd/MM/yyyy' }}
+            </span>
+            <span class="col-type">
+              <span class="type-badge">{{ v.typeVisite }}</span>
+            </span>
+            <span class="col-statut">
+              <span class="statut-chip" [ngClass]="getVisiteStatutClass(v.statut)">
+                {{ getVisiteStatutLabel(v.statut) }}
+              </span>
+            </span>
+            <span class="col-rapport">
+              <ng-container *ngIf="getRapportForVisite(v.id) as rapport">
+                <span class="rapport-chip" [ngClass]="getRapportStatutClass(rapport)">
+                  {{ getRapportStatutLabel(rapport) }}
+                </span>
+              </ng-container>
+              <span *ngIf="!getRapportForVisite(v.id)" class="no-rapport">—</span>
+            </span>
+            <span class="col-action">
+              <ng-container *ngIf="getRapportForVisite(v.id) as rapport">
+                <a class="action-link" (click)="ouvrirRapport(rapport)">
+                  {{ rapport.statut === 'BROUILLON' ? 'Compléter' : 'Consulter' }}
+                </a>
+              </ng-container>
+              <span *ngIf="!getRapportForVisite(v.id) && v.statut === 'PLANIFIEE'" class="action-pending">
+                En attente
+              </span>
+              <span *ngIf="!getRapportForVisite(v.id) && v.statut === 'REALISEE'" class="action-pending">
+                Rapport manquant
+              </span>
+            </span>
+          </div>
+        </div>
+
+        <div class="empty-state" *ngIf="visites.length === 0 && !loading">
+          <mat-icon>event_busy</mat-icon>
+          <p>Aucune visite enregistrée pour ce tunnel</p>
+          <button mat-stroked-button color="primary" (click)="planifierVisite()">
+            <mat-icon>add</mat-icon> Planifier une visite
+          </button>
+        </div>
+
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+
+</div>
+
+<!-- Loading -->
+<div class="loading" *ngIf="loading">
+  <mat-icon>hourglass_empty</mat-icon>
+  <p>Chargement de la fiche tunnel...</p>
+</div>

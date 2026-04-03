@@ -1,0 +1,269 @@
+<div class="rapport-form-page">
+
+  <!-- BREADCRUMB -->
+  <nav class="breadcrumb">
+    <a (click)="retour()">Rapports</a>
+    <mat-icon>chevron_right</mat-icon>
+    <span *ngIf="visiteDetail || rapportExistant?.visite">
+      {{ rapportExistant?.visite?.tunnelNom || visiteDetail?.tunnelNom }}
+    </span>
+    <mat-icon *ngIf="visiteDetail || rapportExistant?.visite">chevron_right</mat-icon>
+    <span class="breadcrumb-current">{{ rapportReference }}</span>
+  </nav>
+
+  <!-- WORKFLOW STEPPER HORIZONTAL -->
+  <div class="workflow-stepper">
+    <div *ngFor="let step of workflowSteps; let i = index; let last = last"
+         class="workflow-step"
+         [class.done]="step.done"
+         [class.active]="step.active">
+      <div class="workflow-dot">
+        <mat-icon *ngIf="step.done">check</mat-icon>
+        <span *ngIf="!step.done">{{ i + 1 }}</span>
+      </div>
+      <span class="workflow-label">{{ step.label }}</span>
+      <div class="workflow-line" *ngIf="!last"></div>
+    </div>
+  </div>
+
+  <!-- EN-TÊTE RAPPORT -->
+  <div class="rapport-header">
+    <div class="rapport-header-left">
+      <h1>{{ rapportReference }}</h1>
+      <span class="rapport-statut-badge"
+            [ngClass]="'badge-' + currentStatut.toLowerCase()">
+        {{ getStatutLabel(currentStatut) }}
+      </span>
+      <p class="rapport-sous-titre" *ngIf="rapportSousTitre">{{ rapportSousTitre }}</p>
+    </div>
+    <div class="rapport-header-actions" *ngIf="isEditable">
+      <button mat-stroked-button
+              (click)="enregistrer()"
+              [disabled]="loading || !visiteSelectionnee">
+        <mat-icon>save</mat-icon>
+        Enregistrer
+      </button>
+      <button mat-flat-button
+              color="primary"
+              (click)="soumettre()"
+              [disabled]="!peutSoumettre">
+        <mat-icon>send</mat-icon>
+        Soumettre en validation
+      </button>
+    </div>
+  </div>
+
+  <!-- Bandeau rejet -->
+  <div class="reject-banner" *ngIf="currentStatut === 'A_CORRIGER' && rapportExistant?.commentaireRejet">
+    <mat-icon>error_outline</mat-icon>
+    <div>
+      <strong>Rapport renvoyé pour correction</strong>
+      <p>{{ rapportExistant!.commentaireRejet }}</p>
+    </div>
+  </div>
+
+  <mat-progress-bar *ngIf="loading" mode="indeterminate" class="loading-bar"></mat-progress-bar>
+
+  <!-- ==================== LAYOUT 2 COLONNES ==================== -->
+  <div class="form-layout">
+
+    <!-- COLONNE GAUCHE : FORMULAIRE -->
+    <main class="form-main">
+
+      <!-- Informations de la visite -->
+      <section class="form-section">
+        <h2 class="section-title">Informations de la visite</h2>
+
+        <!-- Sélection visite (masqué en mode édition car déjà liée) -->
+        <div class="field-row" *ngIf="!isEditMode">
+          <mat-form-field appearance="outline" class="field-select">
+            <mat-label>Visite concernée *</mat-label>
+            <mat-select [(ngModel)]="visiteSelectionnee" required>
+              <mat-option *ngFor="let v of visites" [value]="v.id">
+                {{ v.tunnelNom }} — {{ v.typeVisite }} — {{ v.dateRealisation | date:'dd/MM/yyyy' }}
+              </mat-option>
+            </mat-select>
+            <mat-hint *ngIf="visites.length === 0">
+              Aucune visite assignée trouvée pour votre profil.
+            </mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Détails visite (affichés après sélection) -->
+        <div class="visite-info-grid" *ngIf="visiteDetail || rapportExistant?.visite">
+          <div class="info-field">
+            <label>Tunnel</label>
+            <div class="info-value">
+              {{ rapportExistant?.visite?.tunnelNom || visiteDetail?.tunnelNom || '—' }}
+            </div>
+          </div>
+          <div class="info-field">
+            <label>Date de réalisation *</label>
+            <div class="info-value">
+              {{ (rapportExistant?.visite?.dateRealisation || visiteDetail?.dateRealisation) | date:'dd/MM/yyyy' }}
+            </div>
+          </div>
+          <div class="info-field">
+            <label>Type de visite</label>
+            <div class="info-value">
+              {{ rapportExistant?.visite?.typeVisite || visiteDetail?.typeVisite }}
+            </div>
+          </div>
+          <div class="info-field">
+            <label>Intervenants</label>
+            <div class="info-value">{{ userName }}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Constats et observations -->
+      <section class="form-section">
+        <h2 class="section-title">Constats et observations *</h2>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Synthèse générale *</mat-label>
+          <textarea matInput
+                    [(ngModel)]="constats"
+                    [readonly]="!isEditable"
+                    rows="6"
+                    placeholder="Inspection visuelle des têtes d'ouvrage Nord et Sud. Constat de fissures longitudinales...">
+          </textarea>
+          <mat-hint [class.hint-warn]="constats.length > 0 && constats.length < 50">
+            {{ constats.length }} / 50 caractères minimum
+          </mat-hint>
+        </mat-form-field>
+      </section>
+
+      <!-- Non-conformités relevées -->
+      <section class="form-section">
+        <h2 class="section-title">Non-conformités relevées</h2>
+
+        <div class="nc-items">
+          <div class="nc-inline" *ngFor="let nc of nonConformites; let i = index">
+            <div class="nc-inline-header">
+              <span class="nc-code">NC-{{ (i + 1).toString().padStart(2, '0') }}</span>
+              <span class="nc-dot">·</span>
+              <span class="nc-desc" *ngIf="!isEditable">{{ nc.description }}</span>
+              <mat-form-field appearance="outline" class="nc-desc-field" *ngIf="isEditable">
+                <input matInput [(ngModel)]="nc.description"
+                       placeholder="Description de la non-conformité">
+              </mat-form-field>
+              <span class="nc-dot">·</span>
+              <span class="nc-severite" [ngClass]="getCriticiteClass(nc.criticite)">
+                {{ getCriticiteLabel(nc.criticite) }}
+              </span>
+              <mat-form-field appearance="outline" class="nc-criticite-select" *ngIf="isEditable">
+                <mat-select [(ngModel)]="nc.criticite">
+                  <mat-option *ngFor="let n of niveauxCriticite" [value]="n">{{ n }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+              <button mat-icon-button class="nc-action" *ngIf="isEditable"
+                      (click)="supprimerNC(i)" matTooltip="Supprimer">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+
+            <div class="nc-inline-details" *ngIf="isEditable">
+              <mat-form-field appearance="outline" class="nc-loc-field">
+                <mat-label>Localisation</mat-label>
+                <input matInput [(ngModel)]="nc.localisation"
+                       placeholder="Ex: PK 1+240, côté aval">
+                <mat-icon matPrefix>location_on</mat-icon>
+              </mat-form-field>
+            </div>
+            <div class="nc-inline-details" *ngIf="!isEditable && nc.localisation">
+              <mat-icon class="nc-loc-icon">location_on</mat-icon>
+              <span class="nc-loc-text">{{ nc.localisation }}</span>
+            </div>
+          </div>
+        </div>
+
+        <button mat-stroked-button class="btn-add-nc" (click)="ajouterNC()" *ngIf="isEditable">
+          + Ajouter une non-conformité
+        </button>
+
+        <div class="empty-nc" *ngIf="nonConformites.length === 0 && !isEditable">
+          Aucune non-conformité relevée.
+        </div>
+      </section>
+
+      <!-- Recommandations -->
+      <section class="form-section">
+        <h2 class="section-title">Recommandations *</h2>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Actions à entreprendre</mat-label>
+          <textarea matInput
+                    [(ngModel)]="recommandations"
+                    [readonly]="!isEditable"
+                    rows="5"
+                    placeholder="Réaliser une expertise de structure génie civil dans les 3 mois...">
+          </textarea>
+          <mat-hint>{{ recommandations.length }} caractères</mat-hint>
+        </mat-form-field>
+      </section>
+
+    </main>
+
+    <!-- ==================== COLONNE DROITE : SIDEBAR ==================== -->
+    <aside class="form-sidebar">
+
+      <!-- Statut et workflow -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">Statut et workflow</h3>
+        <div class="timeline">
+          <div *ngFor="let event of timelineEvents"
+               class="timeline-item"
+               [ngClass]="'timeline-' + event.status">
+            <div class="timeline-dot"></div>
+            <div class="timeline-content">
+              <span class="timeline-date">{{ event.date }}</span>
+              <span class="timeline-label">{{ event.label }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Validateur désigné -->
+      <div class="sidebar-card" *ngIf="rapportExistant?.visite?.chargeMission || visiteDetail?.chargeMission">
+        <h3 class="sidebar-card-title">Validateur désigné</h3>
+        <div class="validateur-info">
+          <div class="validateur-avatar">
+            {{ (rapportExistant?.visite?.chargeMission?.prenom || visiteDetail?.chargeMission?.prenom || '').charAt(0) }}{{ (rapportExistant?.visite?.chargeMission?.nom || visiteDetail?.chargeMission?.nom || '').charAt(0) }}
+          </div>
+          <div class="validateur-details">
+            <span class="validateur-name">
+              {{ rapportExistant?.visite?.chargeMission?.prenom || visiteDetail?.chargeMission?.prenom }}
+              {{ rapportExistant?.visite?.chargeMission?.nom || visiteDetail?.chargeMission?.nom }}
+            </span>
+            <span class="validateur-role">Chargé de mission</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Avertissement -->
+      <div class="sidebar-warning">
+        <mat-icon>warning_amber</mat-icon>
+        <span>Le rapport ne peut être diffusé à des acteurs externes qu'après validation formelle.</span>
+      </div>
+
+      <!-- Complétude du rapport -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">Complétude du rapport</h3>
+        <div class="completude-list">
+          <div *ngFor="let item of completudeItems" class="completude-row">
+            <span class="completude-label">{{ item.label }}</span>
+            <span class="completude-status" [ngClass]="getCompletionStatusClass(item.status)">
+              <mat-icon *ngIf="item.status === 'Complet' || item.status === 'Renseigné' || item.status.includes('NC')">
+                check
+              </mat-icon>
+              {{ item.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+</div>
