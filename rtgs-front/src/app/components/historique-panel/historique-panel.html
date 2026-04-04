@@ -1,0 +1,62 @@
+<mat-card class="historique-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>history</mat-icon> Historique des transitions
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+
+    <!-- Loading -->
+    <div class="historique-loading" *ngIf="loading">
+      <mat-icon>hourglass_empty</mat-icon>
+      <span>Chargement de l'historique...</span>
+    </div>
+
+    <!-- Vide -->
+    <div class="historique-empty" *ngIf="!loading && historique.length === 0">
+      <mat-icon>info_outline</mat-icon>
+      <span>Aucune transition enregistrée pour cette entité.</span>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline" *ngIf="!loading && historique.length > 0">
+      <div class="timeline-item" *ngFor="let h of historique; let last = last">
+
+        <div class="timeline-dot" [ngClass]="getStatutClass(h.nouveauStatut)">
+          <mat-icon>{{ getStatutIcon(h.nouveauStatut) }}</mat-icon>
+        </div>
+
+        <div class="timeline-connector" *ngIf="!last"></div>
+
+        <div class="timeline-content">
+          <div class="timeline-header">
+            <span class="timeline-transition">
+              <span class="statut-ancien">{{ getStatutLabel(h.ancienStatut) }}</span>
+              <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+              <span class="statut-nouveau" [ngClass]="getStatutClass(h.nouveauStatut)">
+                {{ getStatutLabel(h.nouveauStatut) }}
+              </span>
+            </span>
+          </div>
+          <div class="timeline-meta">
+            <span class="timeline-user">
+              <mat-icon>person</mat-icon>
+              {{ h.utilisateur.prenom }} {{ h.utilisateur.nom }}
+              <span class="timeline-role">({{ getRoleLabel(h.utilisateur.role) }})</span>
+            </span>
+            <span class="timeline-date">
+              <mat-icon>schedule</mat-icon>
+              {{ formatDate(h.createdAt) }}
+            </span>
+          </div>
+          <div class="timeline-comment" *ngIf="h.commentaire">
+            <mat-icon>comment</mat-icon>
+            {{ h.commentaire }}
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </mat-card-content>
+</mat-card>

@@ -6,6 +6,7 @@
       <h1>Rapports</h1>
       <p class="header-subtitle" *ngIf="isIngenieur">Gérez vos rapports de visite</p>
       <p class="header-subtitle" *ngIf="isChargeMission">Validez et suivez les rapports de visite</p>
+      <p class="header-subtitle" *ngIf="isExploitant">Rapports validés de votre périmètre</p>
     </div>
     <button mat-flat-button color="primary" class="btn-nouveau" (click)="creerRapport()" *ngIf="isIngenieur">
       <mat-icon>add</mat-icon>
@@ -240,6 +241,24 @@
     </mat-tab>
 
   </mat-tab-group>
+
+  <!-- ==================== VUE EXPLOITANT ==================== -->
+  <div *ngIf="isExploitant" class="tab-content">
+    <div class="exploitant-info">
+      <mat-icon>lock</mat-icon>
+      <span>Accès en lecture seule — Seuls les rapports validés de votre périmètre sont affichés.</span>
+    </div>
+
+    <ng-container *ngFor="let r of valides">
+      <ng-container *ngTemplateOutlet="rapportRow; context: { $implicit: r }"></ng-container>
+    </ng-container>
+
+    <div class="empty-state" *ngIf="valides.length === 0 && !loading">
+      <mat-icon>verified</mat-icon>
+      <p>Aucun rapport validé disponible</p>
+      <span>Les rapports apparaîtront ici une fois validés par le chargé de mission.</span>
+    </div>
+  </div>
 
 </div>
 

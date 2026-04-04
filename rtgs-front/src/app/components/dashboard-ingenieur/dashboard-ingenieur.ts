@@ -12,6 +12,7 @@ import { RapportService, Rapport } from '../../services/rapport';
 import { AuthService } from '../../services/auth';
 import { ToastService } from '../../services/toast';
 import { forkJoin } from 'rxjs';
+import { NotificationPanel } from '../notification-panel/notification-panel';
 
 interface VisiteAvecRapport extends Visite {
   rapport?: Rapport;
@@ -29,7 +30,8 @@ interface VisiteAvecRapport extends Visite {
     MatButtonModule,
     MatDividerModule,
     MatTooltipModule,
-    MatChipsModule
+    MatChipsModule,
+    NotificationPanel
   ],
   templateUrl: './dashboard-ingenieur.html',
   styleUrl: './dashboard-ingenieur.scss'

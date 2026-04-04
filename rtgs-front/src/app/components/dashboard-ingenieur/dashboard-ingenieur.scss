@@ -459,3 +459,19 @@ $radius-sm: 6px;
     font-size: 13px;
   }
 }
+
+.stat-danger {
+  border-left: 4px solid #e74c3c !important;
+  background: #fdf2f2 !important;
+
+  .stat-number { color: #e74c3c !important; }
+  .stat-icon { color: #e74c3c !important; }
+}
+
+.stat-warning {
+  border-left: 4px solid #f39c12 !important;
+  background: #fef9e7 !important;
+
+  .stat-number { color: #f39c12 !important; }
+  .stat-icon { color: #f39c12 !important; }
+}

@@ -179,6 +179,13 @@
 
   </div>
 
+  <!-- HISTORIQUE DES TRANSITIONS -->
+  <app-historique-panel
+    *ngIf="isChargeMission"
+    [entiteType]="'RAPPORT'"
+    [entiteId]="rapport.id">
+  </app-historique-panel>
+
 </div>
 
 <div class="loading" *ngIf="!rapport">

@@ -12,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TunnelService, Tunnel } from '../../services/tunnel';
 import { VisiteService, Visite } from '../../services/visite';
 import { RapportService, Rapport } from '../../services/rapport';
+import { AuthService } from '../../services/auth';
 import { ToastService } from '../../services/toast';
 import { VisiteForm } from '../visite-form/visite-form';
 import { forkJoin } from 'rxjs';
@@ -41,6 +42,7 @@ export class TunnelDetail implements OnInit {
   rapports: Rapport[] = [];
   loading: boolean = true;
   activeTab: number = 0;
+  userRole: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -49,10 +51,12 @@ export class TunnelDetail implements OnInit {
     private visiteService: VisiteService,
     private rapportService: RapportService,
     private toast: ToastService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.userRole = this.authService.getRole() || '';
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.charger(id);
@@ -70,14 +74,12 @@ export class TunnelDetail implements OnInit {
       next: ({ tunnel, visites, rapports }) => {
         this.tunnel = tunnel;
 
-        // Filtrer les visites de ce tunnel (VisiteDTO a tunnelId en champ plat)
         this.visites = visites
           .filter(v => v.tunnelId === tunnelId)
           .sort((a, b) =>
             new Date(b.datePrevisionnelle).getTime() - new Date(a.datePrevisionnelle).getTime()
           );
 
-        // Filtrer les rapports de ces visites
         const visiteIds = this.visites.map(v => v.id);
         this.rapports = rapports.filter(r => visiteIds.includes(r.visite?.id));
 

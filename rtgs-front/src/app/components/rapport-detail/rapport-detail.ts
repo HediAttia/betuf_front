@@ -11,6 +11,7 @@ import { RapportService, Rapport } from '../../services/rapport';
 import { AuthService } from '../../services/auth';
 import { ToastService } from '../../services/toast';
 import Swal from 'sweetalert2';
+import { HistoriquePanel } from '../historique-panel/historique-panel';
 
 @Component({
   selector: 'app-rapport-detail',
@@ -23,7 +24,8 @@ import Swal from 'sweetalert2';
     MatIconModule,
     MatButtonModule,
     MatDividerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    HistoriquePanel
   ],
   templateUrl: './rapport-detail.html',
   styleUrl: './rapport-detail.scss'

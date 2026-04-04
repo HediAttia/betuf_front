@@ -49,6 +49,10 @@ export class RapportList implements OnInit {
     return this.userRole === 'INGENIEUR';
   }
 
+  get isExploitant(): boolean {
+    return this.userRole === 'EXPLOITANT';
+  }
+
   constructor(
     private rapportService: RapportService,
     private authService: AuthService,
@@ -72,11 +76,18 @@ export class RapportList implements OnInit {
   chargerRapports(): void {
     this.loading = true;
 
-    // Chargé de mission → voit TOUS les rapports
-    // Ingénieur → voit seulement les siens
-    const source$ = this.isChargeMission
-      ? this.rapportService.getAll()
-      : this.rapportService.getByAuteur(this.userId);
+    let source$;
+
+    if (this.isChargeMission) {
+      // Chargé de mission → voit TOUS les rapports
+      source$ = this.rapportService.getAll();
+    } else if (this.isExploitant) {
+      // Exploitant → voit uniquement les rapports validés de son périmètre
+      source$ = this.rapportService.getByExploitant(this.userId);
+    } else {
+      // Ingénieur → voit seulement les siens
+      source$ = this.rapportService.getByAuteur(this.userId);
+    }
 
     source$.subscribe({
       next: (rapports: Rapport[]) => {

@@ -20,7 +20,7 @@
         {{ tunnel.localisation }} · {{ tunnel.typeTunnel }} · {{ tunnel.departement ? 'Dép. ' + tunnel.departement : '' }}
       </p>
     </div>
-    <div class="tunnel-header-actions">
+    <div class="tunnel-header-actions" *ngIf="userRole === 'CHARGE_MISSION'">
       <button mat-stroked-button (click)="planifierVisite()">
         <mat-icon>event</mat-icon> Planifier visite
       </button>
@@ -165,6 +165,78 @@
           </button>
         </div>
 
+      </div>
+    </mat-tab>
+
+    <!-- ========== VENTILATION ========== -->
+    <mat-tab label="Ventilation">
+      <div class="tab-content">
+        <div class="module-placeholder">
+          <mat-icon>air</mat-icon>
+          <h3>Données de ventilation</h3>
+          <p>Ce module sera alimenté par les données techniques du tunnel (système longitudinal, transversal, débits, trappes de désenfumage).</p>
+          <span class="placeholder-tag">Module à connecter avec LAGORA</span>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ========== ÉCLAIRAGE ========== -->
+    <mat-tab label="Éclairage">
+      <div class="tab-content">
+        <div class="module-placeholder">
+          <mat-icon>lightbulb</mat-icon>
+          <h3>Données d'éclairage</h3>
+          <p>Ce module affichera les caractéristiques d'éclairage par tube : éclairage de base, renforcement aux têtes, régime secouru, type de sources.</p>
+          <span class="placeholder-tag">Module à connecter avec LAGORA</span>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ========== GÉNIE CIVIL ========== -->
+    <mat-tab label="Génie Civil">
+      <div class="tab-content">
+        <div class="module-placeholder">
+          <mat-icon>foundation</mat-icon>
+          <h3>Caractéristiques Génie Civil</h3>
+          <p>Ce module présentera le contexte géologique, le mode de creusement, l'étanchéité, le revêtement et la chaussée pour chaque tube.</p>
+          <span class="placeholder-tag">Module à connecter avec MAGALI</span>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ========== SÉCURITÉ ========== -->
+    <mat-tab label="Sécurité">
+      <div class="tab-content">
+        <div class="module-placeholder">
+          <mat-icon>security</mat-icon>
+          <h3>Sécurité &amp; gestion du trafic</h3>
+          <p>Ce module affichera le degré de surveillance, le type d'exploitation, la localisation du système de gestion et les postes de secours.</p>
+          <span class="placeholder-tag">Module à connecter avec LAGORA</span>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ========== ALIMENTATION ÉLECTRIQUE ========== -->
+    <mat-tab label="Électricité">
+      <div class="tab-content">
+        <div class="module-placeholder">
+          <mat-icon>bolt</mat-icon>
+          <h3>Alimentation électrique</h3>
+          <p>Ce module détaillera le type de livraison, la puissance totale, les postes de transformation, les groupes électrogènes et onduleurs.</p>
+          <span class="placeholder-tag">Module à connecter avec LAGORA</span>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- ========== GÉOMÉTRIE ========== -->
+    <mat-tab label="Géométrie">
+      <div class="tab-content">
+        <div class="module-placeholder">
+          <mat-icon>straighten</mat-icon>
+          <h3>Géométrie de l'ouvrage</h3>
+          <p>Ce module présentera par tube : longueur, nombre de voies, section utile, coordonnées cartographiques, déclivité, profil en travers.</p>
+          <span class="placeholder-tag">Module à connecter avec MAGALI</span>
+        </div>
       </div>
     </mat-tab>
 

@@ -38,6 +38,11 @@ export class TunnelService {
     return this.http.get<Tunnel[]>(`${this.apiUrl}/actifs`);
   }
 
+  /** Tunnels du périmètre d'un exploitant */
+  getByExploitant(userId: string): Observable<Tunnel[]> {
+    return this.http.get<Tunnel[]>(`${this.apiUrl}/exploitant/${userId}`);
+  }
+
   search(query: string): Observable<Tunnel[]> {
     return this.http.get<Tunnel[]>(`${this.apiUrl}/search?q=${query}`);
   }

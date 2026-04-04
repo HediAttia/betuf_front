@@ -47,6 +47,11 @@ export class RapportService {
     return this.http.get<Rapport[]>(`${this.apiUrl}/auteur/${auteurId}`);
   }
 
+  /** Rapports validés du périmètre d'un exploitant */
+  getByExploitant(userId: string): Observable<Rapport[]> {
+    return this.http.get<Rapport[]>(`${this.apiUrl}/exploitant/${userId}`);
+  }
+
   /**
    * POST /api/rapports?visiteId=...&auteurId=...
    * Body = objet avec constats, recommandations, nonConformites

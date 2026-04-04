@@ -1,3 +1,4 @@
+<app-notification-panel [maxItems]="5"></app-notification-panel>
 <div class="dashboard-page">
 
   <!-- EN-TÊTE -->
@@ -11,7 +12,7 @@
     </button>
   </div>
 
-  <!-- COMPTEURS (cliquables) -->
+  <!-- KPIs -->
   <div class="stats-grid">
     <div class="stat-card clickable" (click)="allerRapports()" matTooltip="Voir toutes les visites">
       <mat-icon class="stat-icon visites">assignment</mat-icon>
@@ -20,21 +21,21 @@
         <span class="stat-label">Visites assignées</span>
       </div>
     </div>
-    <div class="stat-card clickable" (click)="allerRapportsBrouillons()" matTooltip="Voir les brouillons">
-      <mat-icon class="stat-icon brouillons">edit_note</mat-icon>
+    <div class="stat-card clickable" [class.stat-danger]="rapportsACorrection > 0" (click)="allerRapports()" matTooltip="Rapports à corriger">
+      <mat-icon class="stat-icon correction">{{ rapportsACorrection > 0 ? 'error' : 'edit_note' }}</mat-icon>
       <div class="stat-content">
-        <span class="stat-number">{{ rapportsBrouillon }}</span>
-        <span class="stat-label">Brouillons</span>
+        <span class="stat-number">{{ rapportsACorrection }}</span>
+        <span class="stat-label">À corriger</span>
       </div>
     </div>
-    <div class="stat-card clickable" (click)="allerRapportsSoumis()" matTooltip="Voir les rapports soumis">
+    <div class="stat-card clickable" [class.stat-warning]="rapportsSoumis > 0" (click)="allerRapportsSoumis()" matTooltip="En attente de validation">
       <mat-icon class="stat-icon soumis">hourglass_top</mat-icon>
       <div class="stat-content">
         <span class="stat-number">{{ rapportsSoumis }}</span>
         <span class="stat-label">En attente</span>
       </div>
     </div>
-    <div class="stat-card clickable" (click)="allerRapportsValides()" matTooltip="Voir les rapports validés">
+    <div class="stat-card clickable" (click)="allerRapportsValides()" matTooltip="Rapports validés">
       <mat-icon class="stat-icon valides">check_circle</mat-icon>
       <div class="stat-content">
         <span class="stat-number">{{ rapportsValides }}</span>

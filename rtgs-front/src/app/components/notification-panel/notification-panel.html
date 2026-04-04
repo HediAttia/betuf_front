@@ -1,0 +1,69 @@
+<!-- Bandeau d'alerte si notifications non lues -->
+<div class="notif-banner" *ngIf="nonLues.length > 0">
+  <mat-icon class="notif-banner-icon">notifications_active</mat-icon>
+  <span class="notif-banner-text">
+    {{ nonLues.length }} notification{{ nonLues.length > 1 ? 's' : '' }} non lue{{ nonLues.length > 1 ? 's' : '' }}
+  </span>
+  <button mat-button class="notif-banner-action" (click)="togglePanel()">
+    {{ panelOpen ? 'Masquer' : 'Voir' }}
+  </button>
+  <button mat-icon-button class="notif-banner-dismiss"
+          matTooltip="Tout marquer comme lu"
+          (click)="marquerToutesLues()">
+    <mat-icon>done_all</mat-icon>
+  </button>
+</div>
+
+<!-- Panneau de notifications dépliable -->
+<div class="notif-panel" *ngIf="panelOpen && notifications.length > 0">
+  <div class="notif-panel-header">
+    <h3>Notifications récentes</h3>
+    <button mat-icon-button (click)="togglePanel()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="notif-list">
+    <div *ngFor="let notif of notifications; trackBy: trackNotif"
+         class="notif-item"
+         [class.notif-unread]="!notif.lue"
+         (click)="ouvrirNotification(notif)">
+
+      <div class="notif-item-icon" [ngClass]="getTypeClass(notif.typeNotification)">
+        <mat-icon>{{ getTypeIcon(notif.typeNotification) }}</mat-icon>
+      </div>
+
+      <div class="notif-item-content">
+        <div class="notif-item-title">{{ notif.titre }}</div>
+        <div class="notif-item-body">
+          {{ notif.contenu.length > 120 ? (notif.contenu | slice:0:120) + '...' : notif.contenu }}
+        </div>
+        <div class="notif-item-meta">
+          <span class="notif-item-date">{{ formatDate(notif.createdAt) }}</span>
+          <span class="notif-item-source" *ngIf="notif.auteur">
+            · {{ notif.auteur.prenom }} {{ notif.auteur.nom }}
+          </span>
+          <span class="notif-item-source" *ngIf="!notif.auteur">
+            · Système RTGS
+          </span>
+        </div>
+      </div>
+
+      <div class="notif-item-badge" *ngIf="!notif.lue">
+        <span class="badge-dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="notif-panel-footer" *ngIf="notifications.length >= 5">
+    <button mat-button color="primary" (click)="voirToutes()">
+      Voir toutes les notifications
+    </button>
+  </div>
+</div>
+
+<!-- État vide -->
+<div class="notif-panel notif-empty" *ngIf="panelOpen && notifications.length === 0">
+  <mat-icon>notifications_none</mat-icon>
+  <p>Aucune notification pour le moment.</p>
+</div>

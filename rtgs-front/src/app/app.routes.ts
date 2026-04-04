@@ -11,6 +11,9 @@ import { authGuard } from './guards/auth-guard';
 import { chargeMissionGuard } from './guards/charge-mission-guard';
 import { ingenieurGuard } from './guards/ingenieur-guard';
 import { RapportForm } from './components/rapport-form/rapport-form';
+import { MesVisites } from './components/mes-visites/mes-visites';
+
+
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -18,8 +21,8 @@ export const routes: Routes = [
 
   // Chargé de mission uniquement
   { path: 'dashboard', component: DashboardComponent, canActivate: [chargeMissionGuard] },
-  { path: 'tunnels', component: TunnelList, canActivate: [chargeMissionGuard] },
-  { path: 'tunnels/:id', component: TunnelDetail, canActivate: [chargeMissionGuard] },
+  { path: 'tunnels', component: TunnelList, canActivate: [authGuard] },
+  { path: 'tunnels/:id', component: TunnelDetail, canActivate: [authGuard] },
 
   // Ingénieur uniquement
   { path: 'dashboard-ingenieur', component: DashboardIngenieur, canActivate: [ingenieurGuard] },
@@ -32,6 +35,8 @@ export const routes: Routes = [
   { path: 'rapports/nouveau', component: RapportForm, canActivate: [ingenieurGuard] },
   { path: 'rapports/:id/edit', component: RapportForm, canActivate: [ingenieurGuard] },
   { path: 'rapports/:id', component: RapportDetail, canActivate: [authGuard] },
+
+  { path: 'mes-visites', component: MesVisites, canActivate: [ingenieurGuard] },
 
   { path: '**', redirectTo: 'login' }
 ];

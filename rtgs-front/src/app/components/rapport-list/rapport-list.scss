@@ -214,3 +214,21 @@ $radius-sm: 6px;
   span { font-size: 13px; display: block; }
   button { margin-top: 16px; }
 }
+
+.exploitant-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #eaf2f8;
+  border-left: 4px solid #2980b9;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: #1a5276;
+
+  mat-icon {
+    font-size: 18px;
+    color: #2980b9;
+  }
+}
