@@ -62,4 +62,12 @@ export class VisiteService {
       body
     );
   }
+
+  annuler(id: string, motif: string): Observable<Visite> {
+    return this.http.patch<Visite>(`${this.apiUrl}/${id}/annuler`, { motif });
+  }
+
+  commenterVisite(id: string, commentaire: string, exploitantId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${id}/commentaires`, { commentaire, exploitantId });
+  }
 }

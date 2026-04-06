@@ -1,21 +1,177 @@
-mat-dialog-content {
-  min-width: 480px;
-  padding-top: 16px !important;
-}
-
-h2[mat-dialog-title] {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #1F4E79;
-}
-
-.form-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.full-width {
+.vf-dialog {
+  font-family: 'Roboto', sans-serif;
   width: 100%;
 }
+
+/* ── Header ── */
+.vf-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--gray-100);
+
+  .vf-header-icon { font-size: 30px; flex-shrink: 0; }
+
+  .vf-header-text {
+    flex: 1;
+    h2 { margin: 0 0 2px; font-size: 17px; font-weight: 800; color: var(--navy); }
+    p  { margin: 0; font-size: 13px; color: var(--gray-500); }
+  }
+
+  .vf-close {
+    background: none; border: none; cursor: pointer;
+    color: var(--gray-500); font-size: 16px; padding: 4px 8px;
+    border-radius: 6px; transition: all 0.15s;
+    &:hover { background: var(--gray-100); color: var(--navy); }
+  }
+}
+
+/* ── Conflit banner ── */
+.conflit-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 24px;
+  background: #fef3c7;
+  border-bottom: 1px solid #fde68a;
+  font-size: 13.5px;
+  color: #92400e;
+
+  strong { display: block; font-weight: 700; margin-bottom: 2px; }
+  .conflit-detail { font-size: 12.5px; opacity: 0.85; }
+}
+
+/* ── Body / fields ── */
+.vf-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vf-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.vf-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+
+  &.full { grid-column: 1 / -1; }
+
+  label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: var(--gray-700);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+
+    .req { color: var(--red); margin-left: 2px; }
+  }
+}
+
+/* Wrapper pour select + input avec icône */
+.select-wrapper,
+.input-wrapper {
+  position: relative;
+
+  .field-svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    color: var(--gray-500);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  select,
+  input[type="date"] {
+    width: 100%;
+    padding: 11px 12px 11px 36px;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 9px;
+    font-size: 13.5px;
+    color: var(--gray-700);
+    background: var(--gray-50);
+    font-family: inherit;
+    transition: all 0.2s;
+    appearance: none;
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &:focus {
+      outline: none;
+      border-color: var(--navy);
+      background: white;
+      box-shadow: 0 0 0 3px rgba(26,39,68,0.07);
+    }
+  }
+
+  /* Flèche select */
+  &.select-wrapper::after {
+    content: '›';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%) rotate(90deg);
+    font-size: 14px;
+    color: var(--gray-500);
+    pointer-events: none;
+  }
+
+  &.conflict {
+    select, input { border-color: #f59e0b !important; background: #fffbeb !important; }
+  }
+}
+
+/* ── Actions ── */
+.vf-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--gray-100);
+  background: var(--gray-50);
+  border-radius: 0 0 12px 12px;
+}
+
+.vf-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--navy) 0%, #243461 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #243461 0%, #2d4080 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(26,39,68,0.3);
+  }
+
+  &:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+}
+
+.vf-spinner {
+  width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

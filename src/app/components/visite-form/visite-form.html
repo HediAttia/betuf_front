@@ -1,60 +1,108 @@
-<h2 mat-dialog-title>
-  <mat-icon>event</mat-icon>
-  Planifier une visite
-</h2>
+<div class="vf-dialog">
 
-<mat-dialog-content>
-  <div class="form-grid">
+  <!-- Header -->
+  <div class="vf-header">
+    <div class="vf-header-icon">📅</div>
+    <div class="vf-header-text">
+      <h2>Planifier une visite</h2>
+      <p>Créer et assigner une nouvelle visite terrain</p>
+    </div>
+    <button class="vf-close" (click)="annuler()">✕</button>
+  </div>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Tunnel</mat-label>
-      <mat-select [(ngModel)]="visite.tunnelId" required>
-        <mat-option *ngFor="let t of tunnels" [value]="t.id">
-          {{ t.nom }} — {{ t.localisation }}
-        </mat-option>
-      </mat-select>
-      <mat-icon matPrefix>tunnel</mat-icon>
-    </mat-form-field>
+  <!-- Alerte conflit RG-PLAN-03 -->
+  @if (conflitDetecte) {
+    <div class="conflit-banner">
+      <span>⚠️</span>
+      <div>
+        <strong>Conflit de planning — RG-PLAN-03</strong>
+        <div class="conflit-detail">Cet ingénieur est déjà assigné ce jour : {{ ingenieurConflitLabel }}</div>
+      </div>
+    </div>
+  }
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Ingénieur assigné</mat-label>
-      <mat-select [(ngModel)]="visite.ingenieurId" required>
-        <mat-option *ngFor="let u of ingenieurs" [value]="u.id">
-          {{ u.prenom }} {{ u.nom }}
-        </mat-option>
-      </mat-select>
-      <mat-icon matPrefix>engineering</mat-icon>
-    </mat-form-field>
+  <!-- Corps -->
+  <div class="vf-body">
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Type de visite</mat-label>
-      <mat-select [(ngModel)]="visite.typeVisite" required>
-        <mat-option *ngFor="let t of typesVisite" [value]="t">{{ t }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+    <div class="vf-field full">
+      <label>Tunnel <span class="req">*</span></label>
+      <div class="select-wrapper">
+        <svg class="field-svg" viewBox="0 0 20 20" fill="currentColor"><path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"/></svg>
+        <select [(ngModel)]="visite.tunnelId" required>
+          <option value="">Sélectionner un tunnel...</option>
+          @for (t of tunnels; track t.id) {
+            <option [value]="t.id">{{ t.nom }} — {{ t.localisation }}</option>
+          }
+        </select>
+      </div>
+    </div>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Date prévisionnelle</mat-label>
-      <input matInput type="date" [(ngModel)]="visite.datePrevisionnelle" required>
-      <mat-icon matPrefix>calendar_today</mat-icon>
-    </mat-form-field>
+    <div class="vf-row">
+      <div class="vf-field">
+        <label>Ingénieur assigné <span class="req">*</span></label>
+        <div class="select-wrapper" [class.conflict]="conflitDetecte">
+          <svg class="field-svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+          <select [(ngModel)]="visite.ingenieurId" required (ngModelChange)="onIngenieurChange()">
+            <option value="">Sélectionner...</option>
+            @for (u of ingenieurs; track u.id) {
+              <option [value]="u.id">{{ u.prenom }} {{ u.nom }}</option>
+            }
+          </select>
+        </div>
+      </div>
 
-    <mat-form-field appearance="outline" class="full-width">
-      <mat-label>Priorité</mat-label>
-      <mat-select [(ngModel)]="visite.priorite">
-        <mat-option *ngFor="let p of priorites" [value]="p">{{ p }}</mat-option>
-      </mat-select>
-    </mat-form-field>
+      <div class="vf-field">
+        <label>Type de visite</label>
+        <div class="select-wrapper">
+          <svg class="field-svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+          <select [(ngModel)]="visite.typeVisite">
+            @for (t of typesVisite; track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="vf-row">
+      <div class="vf-field">
+        <label>Date prévisionnelle <span class="req">*</span></label>
+        <div class="input-wrapper" [class.conflict]="conflitDetecte">
+          <svg class="field-svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+          <input type="date"
+                 [(ngModel)]="visite.datePrevisionnelle"
+                 required
+                 (ngModelChange)="onDateChange()">
+        </div>
+      </div>
+
+      <div class="vf-field">
+        <label>Priorité</label>
+        <div class="select-wrapper">
+          <svg class="field-svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 6a3 3 0 013-3h10a1 1 0 01.8 1.6L14.25 7l2.55 2.4A1 1 0 0116 11H6a1 1 0 00-1 1v3a1 1 0 11-2 0V6z" clip-rule="evenodd"/></svg>
+          <select [(ngModel)]="visite.priorite">
+            @for (p of priorites; track p) {
+              <option [value]="p">{{ p }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </div>
 
   </div>
-</mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button (click)="annuler()">Annuler</button>
-  <button mat-raised-button color="primary"
-          (click)="soumettre()"
-          [disabled]="!visite.tunnelId || !visite.ingenieurId || !visite.datePrevisionnelle">
-    <mat-icon>save</mat-icon>
-    Planifier
-  </button>
-</mat-dialog-actions>
+  <!-- Actions -->
+  <div class="vf-actions">
+    <button class="btn btn-ghost" (click)="annuler()">Annuler</button>
+    <button class="vf-submit"
+            (click)="soumettre()"
+            [disabled]="loading || !visite.tunnelId || !visite.ingenieurId || !visite.datePrevisionnelle">
+      @if (loading) {
+        <span class="vf-spinner"></span> Enregistrement...
+      } @else {
+        Planifier la visite →
+      }
+    </button>
+  </div>
+
+</div>

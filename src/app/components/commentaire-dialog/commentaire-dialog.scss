@@ -1,0 +1,68 @@
+.cd-dialog { font-family: 'Roboto', sans-serif; }
+
+.cd-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--gray-100);
+  .cd-icon { font-size: 28px; flex-shrink: 0; }
+  h2 { margin: 0 0 2px; font-size: 16px; font-weight: 800; color: var(--navy); }
+  p  { margin: 0; font-size: 12.5px; color: var(--gray-500); }
+  .cd-close {
+    margin-left: auto; background: none; border: none; cursor: pointer;
+    color: var(--gray-500); font-size: 15px; padding: 4px 8px;
+    border-radius: 6px;
+    &:hover { background: var(--gray-100); }
+  }
+}
+
+.cd-body { padding: 20px 24px; }
+
+.cd-desc {
+  font-size: 13.5px; color: var(--gray-500); line-height: 1.6; margin: 0 0 16px;
+}
+
+.cd-examples {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 20px;
+  .ex-label { font-size: 11.5px; color: var(--gray-500); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+}
+
+.ex-chip {
+  background: var(--gray-100); border: 1px solid var(--gray-200);
+  border-radius: 20px; padding: 4px 12px; font-size: 12px; color: var(--navy);
+  cursor: pointer; transition: all 0.15s;
+  &:hover { background: #dbeafe; border-color: #bfdbfe; color: #1d4ed8; }
+}
+
+.cd-field {
+  label {
+    display: block; font-size: 11.5px; font-weight: 700; color: var(--gray-700);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+    .req { color: var(--red); margin-left: 2px; }
+  }
+  textarea {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--gray-200);
+    border-radius: 10px; font-size: 14px; color: var(--gray-700); font-family: inherit;
+    resize: vertical; transition: border-color 0.2s; box-sizing: border-box;
+    background: var(--gray-50); line-height: 1.6;
+    &:focus { outline: none; border-color: var(--navy); background: white; }
+  }
+}
+
+.char-count {
+  font-size: 11.5px; color: var(--red); margin-top: 6px; font-weight: 500;
+  &.ok { color: var(--green); }
+}
+
+.cd-actions {
+  display: flex; justify-content: flex-end; gap: 10px;
+  padding: 14px 24px; border-top: 1px solid var(--gray-100); background: var(--gray-50);
+}
+
+.cd-submit {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 9px 18px; border-radius: 8px; font-size: 13.5px; font-weight: 700;
+  cursor: pointer; border: none; background: var(--navy); color: white;
+  transition: all 0.15s;
+  &:hover:not(:disabled) { background: var(--navy-light); transform: translateY(-1px); }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}

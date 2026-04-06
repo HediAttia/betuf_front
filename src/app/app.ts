@@ -24,8 +24,13 @@ import { AuthService } from './services/auth';
 })
 export class App {
   title = 'rtgs-front';
+  sidebarCollapsed = false;
 
   constructor(private authService: AuthService) {}
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
 
   isLoggedIn(): boolean {
     return this.authService.isLoggedIn();

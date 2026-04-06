@@ -1,14 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { TunnelService, Tunnel } from '../../services/tunnel';
 
 @Component({
@@ -18,13 +11,7 @@ import { TunnelService, Tunnel } from '../../services/tunnel';
     CommonModule,
     RouterModule,
     FormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatChipsModule,
-    MatIconModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule
+    DecimalPipe
   ],
   templateUrl: './tunnel-list.html',
   styleUrl: './tunnel-list.scss'
@@ -34,7 +21,8 @@ export class TunnelList implements OnInit {
   tunnels: Tunnel[] = [];
   tunnelsFiltres: Tunnel[] = [];
   recherche: string = '';
-  colonnes = ['nom', 'departement', 'localisation', 'longueurM', 'typeTunnel', 'exploitantNom', 'periodiciteMois', 'statut'];
+  filtreType: string = '';
+  tunnelSelectionne: Tunnel | null = null;
 
   constructor(private tunnelService: TunnelService) {}
 
@@ -46,17 +34,45 @@ export class TunnelList implements OnInit {
   }
 
   filtrer(): void {
-    if (!this.recherche.trim()) {
-      this.tunnelsFiltres = this.tunnels;
-    } else {
-      this.tunnelService.search(this.recherche).subscribe((data: Tunnel[]) => {
-        this.tunnelsFiltres = data;
-      });
+    this.appliquerFiltres();
+  }
+
+  filtrerType(type: string): void {
+    this.filtreType = type;
+    this.appliquerFiltres();
+  }
+
+  private appliquerFiltres(): void {
+    let res = this.tunnels;
+    if (this.recherche.trim()) {
+      const q = this.recherche.toLowerCase();
+      res = res.filter(t =>
+        t.nom?.toLowerCase().includes(q) ||
+        t.localisation?.toLowerCase().includes(q) ||
+        t.departement?.toLowerCase().includes(q)
+      );
+    }
+    if (this.filtreType) {
+      res = res.filter(t => t.typeTunnel === this.filtreType);
+    }
+    this.tunnelsFiltres = res;
+  }
+
+  selectionner(t: Tunnel): void {
+    this.tunnelSelectionne = this.tunnelSelectionne?.id === t.id ? null : t;
+  }
+
+  getTypeClass(type: string): string {
+    switch (type) {
+      case 'ROUTIER': return 'type-routier';
+      case 'FERROVIAIRE': return 'type-ferroviaire';
+      case 'MIXTE': return 'type-mixte';
+      default: return '';
     }
   }
 
   getStatutColor(statut: string): string {
-    switch(statut) {
+    switch (statut) {
       case 'ACTIF': return 'primary';
       case 'EN_TRAVAUX': return 'accent';
       case 'INACTIF': return 'warn';

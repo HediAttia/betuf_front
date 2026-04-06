@@ -3,7 +3,7 @@
   <!-- En-tête -->
   <div class="page-header">
     <div>
-      <h1>📊 Tableau de bord</h1>
+      <h1>Tableau de bord</h1>
       <p>Référentiel des Tunnels et Gestion du Suivi — BETuF</p>
     </div>
     <button class="btn btn-accent" (click)="planifierVisite()">
@@ -13,29 +13,29 @@
 
   <!-- KPIs -->
   <div class="kpi-grid">
-    <div class="kpi-card">
-      <span class="kpi-emoji">🚇</span>
+    <div class="kpi-card kpi-navy">
+      <div class="kpi-emoji">🚇</div>
       <div class="kpi-info">
         <div class="kpi-value">{{ tunnels.length }}</div>
         <div class="kpi-label">Tunnels actifs</div>
       </div>
     </div>
-    <div class="kpi-card">
-      <span class="kpi-emoji">📅</span>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-emoji">📅</div>
       <div class="kpi-info">
         <div class="kpi-value">{{ visitesPlannifiees.length }}</div>
         <div class="kpi-label">Visites planifiées</div>
       </div>
     </div>
-    <div class="kpi-card">
-      <span class="kpi-emoji">✅</span>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-emoji">✅</div>
       <div class="kpi-info">
         <div class="kpi-value">{{ visitesRealisees.length }}</div>
         <div class="kpi-label">Visites réalisées</div>
       </div>
     </div>
-    <div class="kpi-card">
-      <span class="kpi-emoji">📋</span>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-emoji">📋</div>
       <div class="kpi-info">
         <div class="kpi-value">{{ visites.length }}</div>
         <div class="kpi-label">Total visites</div>
@@ -44,93 +44,245 @@
   </div>
 
   <!-- Alertes J-180 -->
-  <div *ngIf="alertes.length > 0">
+  @if (alertes.length > 0) {
     <div class="alert-banner-danger">
-      ⚠️ Alertes réglementaires — {{ alertes.length }} tunnel(s) à planifier
+      ⚠️ {{ alertes.length }} tunnel(s) à planifier impérativement — délai réglementaire dépassé ou imminent
     </div>
-    <div class="section-card">
-      <table class="data-table">
-        <thead>
-        <tr>
-          <th>Tunnel</th>
-          <th>Jours restants</th>
-          <th>Échéance</th>
-          <th>Niveau</th>
-          <th>Action</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let a of alertes">
-          <td>
-            <div class="tunnel-name">{{ a.tunnelNom }}</div>
-            <div class="tunnel-loc">{{ a.localisation }}</div>
-          </td>
-          <td>
-              <span [class]="a.joursRestants < 0 ? 'jours-critique' : a.joursRestants <= 30 ? 'jours-urgent' : 'jours-attention'">
-                {{ a.joursRestants < 0 ? '⚡ DÉPASSÉ de ' + (-a.joursRestants) + ' j' : a.joursRestants + ' jours' }}
-              </span>
-          </td>
-          <td>{{ a.dateProchaine | date:'dd/MM/yyyy' }}</td>
-          <td><span class="badge" [ngClass]="a.niveau.toLowerCase()">{{ a.niveau }}</span></td>
-          <td>
-            <button class="btn btn-primary btn-sm" (click)="planifierVisite()">+ Planifier</button>
-          </td>
-        </tr>
-        </tbody>
-      </table>
+
+    <div class="alertes-section">
+      <div class="alertes-header">
+        <div class="alertes-title">
+          <span class="alertes-dot"></span>
+          Tunnels en alerte réglementaire
+        </div>
+        <span class="alertes-count">{{ alertes.length }} alerte(s)</span>
+      </div>
+
+      <div class="alertes-list">
+        @for (a of alertes; track a) {
+          <div class="alerte-card" [class.alerte-critique]="a.joursRestants < 0" [class.alerte-urgent]="a.joursRestants >= 0 && a.joursRestants <= 30" [class.alerte-attention]="a.joursRestants > 30">
+
+            <!-- Barre latérale urgence -->
+            <div class="alerte-urgence-bar"></div>
+
+            <!-- Jours restants (gros chiffre) -->
+            <div class="alerte-jours">
+              <div class="alerte-jours-val">
+                {{ a.joursRestants < 0 ? '+' + (-a.joursRestants) : a.joursRestants }}
+              </div>
+              <div class="alerte-jours-lbl">{{ a.joursRestants < 0 ? 'j. dépassés' : 'jours' }}</div>
+            </div>
+
+            <!-- Séparateur -->
+            <div class="alerte-sep"></div>
+
+            <!-- Infos tunnel -->
+            <div class="alerte-body">
+              <div class="alerte-nom">{{ a.tunnelNom }}</div>
+              @if (a.localisation) {
+                <div class="alerte-loc">📍 {{ a.localisation }}</div>
+              }
+              <div class="alerte-echeance">
+                Échéance : <strong>{{ a.dateProchaine | date:'dd/MM/yyyy' }}</strong>
+              </div>
+            </div>
+
+            <!-- Niveau -->
+            <div class="alerte-niveau">
+              <span class="badge" [ngClass]="a.niveau.toLowerCase()">{{ a.niveau }}</span>
+            </div>
+
+            <!-- Action -->
+            <div class="alerte-action">
+              <button class="btn btn-primary btn-sm" (click)="planifierVisite()">
+                + Planifier
+              </button>
+            </div>
+
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ── CALENDRIER ── -->
+  <div class="calendar-section">
+    <div class="calendar-card">
+
+      <!-- Header calendrier -->
+      <div class="calendar-header">
+        <div class="cal-header-left">
+          <span class="cal-title">📅 Planning du mois</span>
+          <span class="cal-month">{{ moisLabel }}</span>
+        </div>
+        <div class="cal-nav">
+          <button class="cal-nav-btn" (click)="moisPrecedent()">‹</button>
+          <button class="cal-nav-btn" (click)="moisSuivant()">›</button>
+        </div>
+      </div>
+
+      <!-- Légende -->
+      <div class="cal-legend">
+        <span class="legend-item"><span class="legend-dot dot-blue"></span> Normale</span>
+        <span class="legend-item"><span class="legend-dot dot-amber"></span> Haute</span>
+        <span class="legend-item"><span class="legend-dot dot-red"></span> Critique</span>
+      </div>
+
+      <!-- Grille calendrier -->
+      <div class="calendar-grid">
+        @for (jour of joursNoms; track jour) {
+          <div class="day-header">{{ jour }}</div>
+        }
+        @for (day of joursCalendrier; track day.dateStr) {
+          <div class="calendar-day"
+               [class.other-month]="!day.isCurrentMonth"
+               [class.today]="day.isToday"
+               [class.has-visites]="day.visites.length > 0"
+               (click)="selectionnerJour(day)">
+            <div class="day-num">{{ day.date.getDate() }}</div>
+            <div class="day-visites">
+              @for (v of day.visites.slice(0, 2); track v.id) {
+                <div class="visite-pill" [ngClass]="getPrioriteClass(v.priorite)" [title]="getTunnelNom(v)">
+                  {{ getTunnelNom(v) | slice:0:12 }}
+                </div>
+              }
+              @if (day.visites.length > 2) {
+                <div class="visite-more">+{{ day.visites.length - 2 }}</div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+    </div>
+
+    <!-- Panneau détail visite sélectionnée -->
+    <div class="visite-detail-panel" [class.visible]="visiteSelectionnee">
+      @if (visiteSelectionnee) {
+        <div class="vdp-header">
+          <span class="vdp-title">Détail de la visite</span>
+          <button class="vdp-close" (click)="visiteSelectionnee = null">✕</button>
+        </div>
+        <div class="vdp-body">
+          <div class="vdp-row">
+            <span class="vdp-label">Tunnel</span>
+            <span class="vdp-value">{{ getTunnelNom(visiteSelectionnee) }}</span>
+          </div>
+          <div class="vdp-row">
+            <span class="vdp-label">Localisation</span>
+            <span class="vdp-value">{{ getTunnelLoc(visiteSelectionnee) || '—' }}</span>
+          </div>
+          <div class="vdp-row">
+            <span class="vdp-label">Type</span>
+            <span class="vdp-value">{{ visiteSelectionnee.typeVisite }}</span>
+          </div>
+          <div class="vdp-row">
+            <span class="vdp-label">Date prévue</span>
+            <span class="vdp-value">{{ visiteSelectionnee.datePrevisionnelle | date:'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="vdp-row">
+            <span class="vdp-label">Priorité</span>
+            <span class="badge" [ngClass]="visiteSelectionnee.priorite.toLowerCase()">{{ visiteSelectionnee.priorite }}</span>
+          </div>
+          <div class="vdp-row">
+            <span class="vdp-label">Statut</span>
+            <span class="badge planifiee">Planifiée</span>
+          </div>
+        </div>
+        <div class="vdp-actions">
+          <button class="btn btn-danger btn-sm" (click)="annulerVisite(visiteSelectionnee)">
+            Annuler la visite
+          </button>
+        </div>
+      } @else {
+        <div class="vdp-empty">
+          <div class="vdp-empty-icon">📅</div>
+          <p>Cliquez sur un jour avec des visites pour voir le détail</p>
+        </div>
+      }
     </div>
   </div>
 
   <!-- Visites planifiées -->
-  <div class="section-card">
-    <div class="section-title">📅 Visites planifiées</div>
-    <table class="data-table">
-      <thead>
-      <tr>
-        <th>Tunnel</th>
-        <th>Type</th>
-        <th>Date prévue</th>
-        <th>Statut</th>
-        <th>Priorité</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let v of visitesPlannifiees">
-        <td class="tunnel-name">{{ v.tunnel?.nom }}</td>
-        <td>{{ v.typeVisite }}</td>
-        <td>{{ v.datePrevisionnelle | date:'dd/MM/yyyy' }}</td>
-        <td><span class="badge planifiee">📅 Planifiée</span></td>
-        <td><span class="badge" [ngClass]="v.priorite.toLowerCase()">{{ v.priorite }}</span></td>
-      </tr>
-      <tr *ngIf="visitesPlannifiees.length === 0">
-        <td colspan="5" style="text-align:center; color: var(--gray-500); padding: 24px">Aucune visite planifiée</td>
-      </tr>
-      </tbody>
-    </table>
+  <div class="section-card visites-section">
+    <div class="section-title">
+      <span>📅 Visites planifiées</span>
+      <span class="section-count">{{ visitesPlannifiees.length }}</span>
+    </div>
+
+    @if (visitesPlannifiees.length === 0) {
+      <div class="visites-empty">
+        <div class="visites-empty-icon">📅</div>
+        <p>Aucune visite planifiée pour le moment</p>
+        <button class="btn btn-primary btn-sm" (click)="planifierVisite()">+ Planifier une visite</button>
+      </div>
+    }
+
+    <div class="visites-list">
+      @for (v of visitesPlannifiees; track v.id) {
+        <div class="visite-item" [class]="'visite-' + v.priorite.toLowerCase()">
+
+          <!-- Indicateur priorité -->
+          <div class="visite-prio-bar"></div>
+
+          <!-- Date mise en avant -->
+          <div class="visite-date-block">
+            <div class="visite-date-day">{{ v.datePrevisionnelle | date:'dd' }}</div>
+            <div class="visite-date-mon">{{ v.datePrevisionnelle | date:'MMM' }}</div>
+          </div>
+
+          <!-- Infos principales -->
+          <div class="visite-info">
+            <div class="visite-tunnel-nom">{{ getTunnelNom(v) }}</div>
+            <div class="visite-meta">
+              @if (getTunnelLoc(v)) {
+                <span class="visite-loc">{{ getTunnelLoc(v) }}</span>
+                <span class="visite-meta-sep">·</span>
+              }
+              <span class="visite-type">{{ v.typeVisite }}</span>
+            </div>
+          </div>
+
+          <!-- Badges -->
+          <div class="visite-badges">
+            <span class="badge planifiee">Planifiée</span>
+            <span class="badge" [ngClass]="v.priorite.toLowerCase()">{{ v.priorite }}</span>
+          </div>
+
+          <!-- Action -->
+          <div class="visite-actions">
+            <button class="btn btn-danger btn-sm" (click)="annulerVisite(v)">Annuler</button>
+          </div>
+
+        </div>
+      }
+    </div>
   </div>
 
   <!-- Tunnels actifs -->
   <div class="section-card">
-    <div class="section-title" style="justify-content: space-between">
+    <div class="section-title">
       <span>🚇 Tunnels actifs</span>
       <a routerLink="/tunnels" class="btn btn-ghost btn-sm">Voir tous →</a>
     </div>
     <table class="data-table">
       <thead>
-      <tr>
-        <th>Nom</th>
-        <th>Localisation</th>
-        <th>Longueur</th>
-        <th>Statut</th>
-      </tr>
+        <tr>
+          <th>Nom</th>
+          <th>Localisation</th>
+          <th>Longueur</th>
+          <th>Statut</th>
+        </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let t of tunnels">
-        <td class="tunnel-name">{{ t.nom }}</td>
-        <td>{{ t.localisation }}</td>
-        <td>{{ t.longueurM }} m</td>
-        <td><span class="badge actif">✅ Actif</span></td>
-      </tr>
+        @for (t of tunnels; track t.id) {
+          <tr>
+            <td class="tunnel-name">{{ t.nom }}</td>
+            <td>{{ t.localisation }}</td>
+            <td>{{ t.longueurM }} m</td>
+            <td><span class="badge actif">Actif</span></td>
+          </tr>
+        }
       </tbody>
     </table>
   </div>

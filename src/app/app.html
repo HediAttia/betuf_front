@@ -1,10 +1,11 @@
-<div class="app-shell" *ngIf="isLoggedIn()">
+<div class="app-shell" *ngIf="isLoggedIn()" [class.sidebar-collapsed]="sidebarCollapsed">
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
+
     <div class="sidebar-logo">
-      <span class="logo-icon">🚇</span>
-      <div>
+      <div class="logo-icon">🚇</div>
+      <div class="logo-text">
         <div class="logo-title">RTGS</div>
         <div class="logo-sub">BETuF</div>
       </div>
@@ -12,19 +13,21 @@
 
     <nav class="sidebar-nav">
 
+      <div class="nav-section-label">Navigation</div>
+
       <!-- Chargé de mission -->
       <ng-container *ngIf="role === 'CHARGE_MISSION'">
         <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
           <span class="nav-icon">📊</span>
-          <span>Tableau de bord</span>
+          <span class="nav-label">Tableau de bord</span>
         </a>
         <a class="nav-item" routerLink="/tunnels" routerLinkActive="active">
           <span class="nav-icon">🚇</span>
-          <span>Tunnels</span>
+          <span class="nav-label">Tunnels</span>
         </a>
         <a class="nav-item" routerLink="/rapports" routerLinkActive="active">
           <span class="nav-icon">📋</span>
-          <span>Rapports</span>
+          <span class="nav-label">Rapports</span>
         </a>
       </ng-container>
 
@@ -32,11 +35,15 @@
       <ng-container *ngIf="role === 'INGENIEUR'">
         <a class="nav-item" routerLink="/dashboard-ingenieur" routerLinkActive="active">
           <span class="nav-icon">📊</span>
-          <span>Tableau de bord</span>
+          <span class="nav-label">Tableau de bord</span>
         </a>
         <a class="nav-item" routerLink="/rapports" routerLinkActive="active">
           <span class="nav-icon">📋</span>
-          <span>Mes rapports</span>
+          <span class="nav-label">Mes rapports</span>
+        </a>
+        <a class="nav-item" routerLink="/rapports/nouveau" routerLinkActive="active">
+          <span class="nav-icon">✏️</span>
+          <span class="nav-label">Rédiger un rapport</span>
         </a>
       </ng-container>
 
@@ -44,16 +51,17 @@
       <ng-container *ngIf="role === 'EXPLOITANT'">
         <a class="nav-item" routerLink="/dashboard-exploitant" routerLinkActive="active">
           <span class="nav-icon">📊</span>
-          <span>Tableau de bord</span>
+          <span class="nav-label">Tableau de bord</span>
         </a>
         <a class="nav-item" routerLink="/rapports" routerLinkActive="active">
           <span class="nav-icon">📋</span>
-          <span>Rapports validés</span>
+          <span class="nav-label">Rapports validés</span>
         </a>
       </ng-container>
 
     </nav>
 
+    <!-- Footer : utilisateur + déconnexion -->
     <div class="sidebar-footer">
       <div class="user-info">
         <div class="user-avatar">{{ initiales }}</div>
@@ -63,19 +71,33 @@
         </div>
       </div>
       <button class="logout-btn" (click)="logout()" title="Se déconnecter">
-        ↩
+        <svg class="logout-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h7a1 1 0 100-2H4V5h6a1 1 0 100-2H3zm11.293 4.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L15.586 11H9a1 1 0 110-2h6.586l-1.293-1.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+        </svg>
+        <span class="logout-label">Se déconnecter</span>
       </button>
     </div>
+
   </aside>
 
   <!-- MAIN CONTENT -->
   <main class="main-content">
+
+    <!-- Barre supérieure avec bouton toggle -->
+    <div class="topbar">
+      <button class="sidebar-toggle" (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Afficher la barre' : 'Réduire la barre'">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+        </svg>
+      </button>
+    </div>
+
     <router-outlet />
   </main>
 
 </div>
 
-<!-- Page login (pas de sidebar) -->
+<!-- Landing / Login (pas de sidebar) -->
 <ng-container *ngIf="!isLoggedIn()">
   <router-outlet />
 </ng-container>

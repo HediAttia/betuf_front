@@ -1,0 +1,226 @@
+<div class="landing">
+
+  <!-- ── NAV ── -->
+  <nav class="landing-nav">
+    <div class="nav-brand">
+      <span class="nav-logo">🚇</span>
+      <div>
+        <span class="nav-title">RTGS</span>
+        <span class="nav-sub">BETUF</span>
+      </div>
+    </div>
+    <a routerLink="/login" class="nav-cta">Se connecter →</a>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+    <svg class="hero-svg" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice">
+      <ellipse cx="450" cy="700" rx="800" ry="620" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="80"/>
+      <ellipse cx="450" cy="700" rx="580" ry="450" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="50"/>
+      <ellipse cx="450" cy="700" rx="380" ry="300" fill="none" stroke="rgba(245,158,11,0.08)" stroke-width="30"/>
+      <ellipse cx="450" cy="700" rx="200" ry="160" fill="none" stroke="rgba(245,158,11,0.15)" stroke-width="18"/>
+      <line x1="450" y1="0" x2="450" y2="700" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+      <line x1="0" y1="350" x2="900" y2="350" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+    </svg>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+
+    <div class="hero-content">
+      <div class="hero-eyebrow">Ministère de l'Écologie — BETuF</div>
+      <h1 class="hero-title">
+        <span class="hero-title-main">RTGS</span>
+        <span class="hero-title-sub">Référentiel des Tunnels<br>et Gestion du Suivi</span>
+      </h1>
+      <p class="hero-desc">
+        Plateforme centralisée pour la gestion réglementaire, l'inspection<br>
+        et le suivi des tunnels routiers français.
+      </p>
+      <div class="hero-actions">
+        <a routerLink="/login" class="hero-btn-primary">
+          Accéder à la plateforme
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </a>
+        <a href="#features" class="hero-btn-secondary">Découvrir</a>
+      </div>
+      <div class="hero-badges">
+        <span class="hero-badge">🔒 Accès sécurisé</span>
+        <span class="hero-badge">📋 Conformité réglementaire</span>
+        <span class="hero-badge">🚇 47 tunnels</span>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Défiler</span>
+    </div>
+  </section>
+
+  <!-- ── STATS ── -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">47</div>
+        <div class="stat-label">Tunnels référencés</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">12</div>
+        <div class="stat-label">Régions couvertes</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">3</div>
+        <div class="stat-label">Rôles métier</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <div class="stat-number">J–180</div>
+        <div class="stat-label">Alerte réglementaire</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURES ── -->
+  <section class="features-section" id="features">
+    <div class="section-label">Fonctionnalités</div>
+    <h2 class="section-title">Tout ce dont vous avez besoin</h2>
+    <p class="section-desc">Une plateforme pensée pour chaque acteur du cycle d'inspection des tunnels.</p>
+
+    <div class="features-grid">
+
+      <div class="feature-card feature-navy">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+        </div>
+        <h3>Tableau de bord</h3>
+        <p>Vue synthétique des KPI, alertes réglementaires J-180 et planning des visites pour les chargés de mission.</p>
+        <div class="feature-tag">Chargé de mission</div>
+      </div>
+
+      <div class="feature-card feature-blue">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+        </div>
+        <h3>Rapports d'inspection</h3>
+        <p>Rédaction structurée des rapports de visite avec constats, non-conformités et recommandations terrain.</p>
+        <div class="feature-tag">Ingénieur</div>
+      </div>
+
+      <div class="feature-card feature-amber">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </div>
+        <h3>Portail exploitant</h3>
+        <p>Accès sécurisé en lecture aux rapports validés concernant les tunnels du périmètre de l'exploitant.</p>
+        <div class="feature-tag">Exploitant</div>
+      </div>
+
+      <div class="feature-card feature-green">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+        </div>
+        <h3>Alertes réglementaires</h3>
+        <p>Détection automatique des tunnels approchant l'échéance réglementaire avec indicateur de criticité.</p>
+        <div class="feature-tag">Automatisé</div>
+      </div>
+
+      <div class="feature-card feature-purple">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+        </div>
+        <h3>Gestion multi-rôles</h3>
+        <p>Accès différencié pour chargés de mission, ingénieurs et exploitants avec périmètres strictement définis.</p>
+        <div class="feature-tag">Sécurité</div>
+      </div>
+
+      <div class="feature-card feature-teal">
+        <div class="feature-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+          </svg>
+        </div>
+        <h3>Référentiel tunnels</h3>
+        <p>Base centralisée de tous les tunnels avec caractéristiques techniques, exploitants et périodicité d'inspection.</p>
+        <div class="feature-tag">Données</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── WORKFLOW ── -->
+  <section class="workflow-section">
+    <div class="workflow-inner">
+      <div class="section-label light">Processus</div>
+      <h2 class="section-title light">Comment ça fonctionne</h2>
+
+      <div class="workflow-steps">
+        <div class="workflow-step">
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h4>Planification</h4>
+            <p>Le chargé de mission planifie les visites et assigne les ingénieurs selon les échéances réglementaires.</p>
+          </div>
+        </div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step">
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h4>Inspection</h4>
+            <p>L'ingénieur réalise la visite terrain et rédige son rapport avec constats et non-conformités détectées.</p>
+          </div>
+        </div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step">
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h4>Validation</h4>
+            <p>Le chargé de mission analyse le rapport soumis et le valide ou le retourne pour correction.</p>
+          </div>
+        </div>
+        <div class="workflow-arrow">→</div>
+        <div class="workflow-step">
+          <div class="step-num">04</div>
+          <div class="step-content">
+            <h4>Publication</h4>
+            <p>Le rapport validé est accessible aux exploitants concernés pour consultation dans leur portail dédié.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section class="cta-section">
+    <div class="cta-inner">
+      <div class="cta-icon">🚇</div>
+      <h2>Prêt à accéder à la plateforme ?</h2>
+      <p>Connectez-vous avec vos identifiants BETUF pour accéder à votre espace personnalisé.</p>
+      <a routerLink="/login" class="hero-btn-primary large">
+        Se connecter à RTGS
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="landing-footer">
+    <div class="footer-brand">
+      <span>🚇</span>
+      <div>
+        <strong>RTGS</strong> — Référentiel des Tunnels et Gestion du Suivi
+      </div>
+    </div>
+    <div class="footer-copy">Ministère de l'Écologie — Bureau d'Études des Tunnels de France</div>
+  </footer>
+
+</div>

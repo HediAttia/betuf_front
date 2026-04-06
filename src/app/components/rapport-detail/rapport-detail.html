@@ -2,7 +2,7 @@
 
   <!-- En-tête -->
   <div class="detail-header">
-    <button mat-button (click)="retour()">
+    <button mat-button (click)="retour()" class="no-print">
       <mat-icon>arrow_back</mat-icon> Retour aux rapports
     </button>
     <div class="header-content">
@@ -14,6 +14,9 @@
     <mat-chip [color]="getStatutColor(rapport.statut)" highlighted class="statut-chip">
       {{ rapport.statut }}
     </mat-chip>
+    <button class="btn btn-ghost btn-sm no-print" (click)="exportPDF()" title="Exporter en PDF">
+      🖨️ Export PDF
+    </button>
   </div>
 
   <!-- Actions -->

@@ -10,10 +10,11 @@ import { authGuard } from './guards/auth-guard';
 import { chargeMissionGuard } from './guards/charge-mission-guard';
 import { ingenieurGuard } from './guards/ingenieur-guard';
 import { RapportForm } from './components/rapport-form/rapport-form';
+import { Landing } from './components/landing/landing';
 
 export const routes: Routes = [
+  { path: '', component: Landing },
   { path: 'login', component: LoginComponent },
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
 
   // Chargé de mission uniquement
   { path: 'dashboard', component: DashboardComponent, canActivate: [chargeMissionGuard] },

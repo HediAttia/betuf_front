@@ -1,12 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { RapportService, Rapport } from '../../services/rapport';
 import { Router } from '@angular/router';
 
@@ -15,13 +10,8 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatTableModule,
-    MatChipsModule,
-    MatIconModule,
-    MatButtonModule,
-    MatDialogModule,
-    MatTooltipModule
+    FormsModule,
+    RouterModule
   ],
   templateUrl: './rapport-list.html',
   styleUrl: './rapport-list.scss'
@@ -29,9 +19,11 @@ import { Router } from '@angular/router';
 export class RapportList implements OnInit {
 
   rapports: Rapport[] = [];
-  colonnes = ['tunnel', 'auteur', 'typeVisite', 'dateSoumission', 'statut', 'version', 'actions'];
+  rapportsFiltres: Rapport[] = [];
+  recherche: string = '';
+  filtreStatut: string = '';
+  rapportSelectionne: Rapport | null = null;
 
-  // ID de Dupont pour la démo de validation
   dupont_id = 'b1000000-0000-0000-0000-000000000001';
 
   constructor(
@@ -46,12 +38,45 @@ export class RapportList implements OnInit {
   charger(): void {
     this.rapportService.getAll().subscribe((data: Rapport[]) => {
       this.rapports = data;
+      this.appliquerFiltres();
     });
+  }
+
+  filtrer(): void {
+    this.appliquerFiltres();
+  }
+
+  filtrerStatut(statut: string): void {
+    this.filtreStatut = statut;
+    this.appliquerFiltres();
+  }
+
+  private appliquerFiltres(): void {
+    let res = this.rapports;
+    if (this.recherche.trim()) {
+      const q = this.recherche.toLowerCase();
+      res = res.filter(r =>
+        r.visite?.tunnel?.nom?.toLowerCase().includes(q) ||
+        r.auteur?.nom?.toLowerCase().includes(q) ||
+        r.auteur?.prenom?.toLowerCase().includes(q)
+      );
+    }
+    if (this.filtreStatut) {
+      res = res.filter(r => r.statut === this.filtreStatut);
+    }
+    this.rapportsFiltres = res;
+  }
+
+  selectionner(r: Rapport): void {
+    this.rapportSelectionne = this.rapportSelectionne?.id === r.id ? null : r;
   }
 
   valider(rapport: Rapport): void {
     this.rapportService.valider(rapport.id, this.dupont_id).subscribe({
-      next: () => this.charger(),
+      next: () => {
+        this.charger();
+        this.rapportSelectionne = null;
+      },
       error: (err) => alert('Validation refusée : ' + err.error)
     });
   }
@@ -60,29 +85,12 @@ export class RapportList implements OnInit {
     const commentaire = prompt('Commentaire de correction obligatoire :');
     if (commentaire) {
       this.rapportService.corriger(rapport.id, commentaire).subscribe({
-        next: () => this.charger(),
+        next: () => {
+          this.charger();
+          this.rapportSelectionne = null;
+        },
         error: (err) => console.error(err)
       });
-    }
-  }
-
-  getStatutColor(statut: string): string {
-    switch(statut) {
-      case 'BROUILLON': return '';
-      case 'SOUMIS': return 'primary';
-      case 'A_CORRIGER': return 'warn';
-      case 'VALIDE': return 'accent';
-      default: return '';
-    }
-  }
-
-  getStatutIcon(statut: string): string {
-    switch(statut) {
-      case 'BROUILLON': return 'edit';
-      case 'SOUMIS': return 'pending';
-      case 'A_CORRIGER': return 'warning';
-      case 'VALIDE': return 'check_circle';
-      default: return 'help';
     }
   }
 
@@ -96,5 +104,58 @@ export class RapportList implements OnInit {
 
   ouvrirDetail(rapport: Rapport): void {
     this.router.navigate(['/rapports', rapport.id]);
+  }
+
+  getStatutClass(statut: string): string {
+    switch (statut) {
+      case 'BROUILLON':  return 'statut-brouillon';
+      case 'SOUMIS':     return 'statut-soumis';
+      case 'A_CORRIGER': return 'statut-corriger';
+      case 'VALIDE':     return 'statut-valide';
+      default: return '';
+    }
+  }
+
+  getStatutLabel(statut: string): string {
+    switch (statut) {
+      case 'BROUILLON':  return 'Brouillon';
+      case 'SOUMIS':     return 'Soumis';
+      case 'A_CORRIGER': return 'À corriger';
+      case 'VALIDE':     return 'Validé';
+      default: return statut;
+    }
+  }
+
+  getTypeVisiteClass(type: string): string {
+    switch (type) {
+      case 'PERIODIQUE':   return 'tv-periodique';
+      case 'INOPINEE':     return 'tv-inopinee';
+      case 'EXCEPTIONNELLE': return 'tv-exceptionnelle';
+      default: return 'tv-default';
+    }
+  }
+
+  countStatut(statut: string): number {
+    return this.rapports.filter(r => r.statut === statut).length;
+  }
+
+  getTunnelNom(r: Rapport): string {
+    return r.visite?.tunnel?.nom || r.visite?.tunnelNom || 'Tunnel non renseigné';
+  }
+
+  getInitiales(auteur: any): string {
+    if (!auteur) return '?';
+    const p = auteur.prenom?.[0] || '';
+    const n = auteur.nom?.[0] || '';
+    return (p + n).toUpperCase() || '?';
+  }
+
+  getRoleLabel(role: string): string {
+    switch (role) {
+      case 'INGENIEUR':      return 'Ingénieur terrain';
+      case 'CHARGE_MISSION': return 'Chargé de mission';
+      case 'EXPLOITANT':     return 'Exploitant';
+      default: return role || '';
+    }
   }
 }

@@ -95,6 +95,10 @@ export class RapportDetail implements OnInit {
     this.router.navigate(['/rapports']);
   }
 
+  exportPDF(): void {
+    window.print();
+  }
+
   getStatutColor(statut: string): string {
     switch(statut) {
       case 'SOUMIS': return 'primary';

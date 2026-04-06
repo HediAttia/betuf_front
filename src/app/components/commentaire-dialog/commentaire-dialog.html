@@ -1,0 +1,51 @@
+<div class="cd-dialog">
+
+  <div class="cd-header">
+    <div class="cd-icon">💬</div>
+    <div>
+      <h2>Commentaire exploitant</h2>
+      <p>{{ data.visite?.tunnel?.nom }} — {{ data.visite?.datePrevisionnelle | date:'dd/MM/yyyy' }}</p>
+    </div>
+    <button class="cd-close" (click)="annuler()">✕</button>
+  </div>
+
+  <div class="cd-body">
+    <p class="cd-desc">
+      Vous pouvez signaler une contrainte ou indisponibilité liée à cette visite.
+      Votre commentaire sera transmis au chargé de mission.
+    </p>
+
+    <div class="cd-examples">
+      <span class="ex-label">Exemples :</span>
+      <button class="ex-chip" (click)="commentaire = 'Aucun personnel disponible ce jour pour accompagner l\'ingénieur.'">
+        Indisponibilité personnel
+      </button>
+      <button class="ex-chip" (click)="commentaire = 'Travaux en cours dans le tunnel, accès impossible à cette date.'">
+        Accès impossible
+      </button>
+      <button class="ex-chip" (click)="commentaire = 'Date à modifier, événement prévu dans le tunnel ce jour.'">
+        Demande de report
+      </button>
+    </div>
+
+    <div class="cd-field">
+      <label>Votre commentaire <span class="req">*</span></label>
+      <textarea
+        [(ngModel)]="commentaire"
+        placeholder="Décrivez la contrainte ou votre demande..."
+        rows="4">
+      </textarea>
+      <div class="char-count" [class.ok]="commentaire.trim().length >= 10">
+        {{ commentaire.trim().length }} / 10 caractères minimum
+      </div>
+    </div>
+  </div>
+
+  <div class="cd-actions">
+    <button class="btn btn-ghost" (click)="annuler()">Annuler</button>
+    <button class="cd-submit" (click)="envoyer()" [disabled]="commentaire.trim().length < 10">
+      Envoyer le commentaire
+    </button>
+  </div>
+
+</div>

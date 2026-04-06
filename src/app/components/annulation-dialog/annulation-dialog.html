@@ -1,0 +1,41 @@
+<div class="annulation-dialog">
+
+  <div class="dialog-header">
+    <div class="dialog-icon">🚫</div>
+    <div>
+      <h2>Annuler la visite</h2>
+      <p>{{ data.visite?.tunnel?.nom }}</p>
+    </div>
+  </div>
+
+  <div class="dialog-body">
+    <div class="rg-badge">RG-PLAN-05 — Motif obligatoire</div>
+
+    <p class="dialog-desc">
+      Un motif d'annulation est requis. Il doit comporter au minimum 20 caractères
+      et sera consigné dans l'historique de la visite.
+    </p>
+
+    <div class="field-group">
+      <label>Motif d'annulation <span class="required">*</span></label>
+      <textarea
+        [(ngModel)]="motif"
+        placeholder="Ex : Ingénieur indisponible suite à un incident, report demandé par l'exploitant..."
+        rows="4">
+      </textarea>
+      <div class="char-count" [class.ok]="motif.length >= 20">
+        {{ motif.length }} / 20 caractères minimum
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn btn-ghost" (click)="annuler()">Annuler</button>
+    <button class="btn btn-danger-solid"
+            (click)="confirmer()"
+            [disabled]="motif.length < 20">
+      Confirmer l'annulation
+    </button>
+  </div>
+
+</div>

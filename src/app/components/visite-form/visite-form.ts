@@ -6,12 +6,10 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { TunnelService, Tunnel } from '../../services/tunnel';
 import { UtilisateurService, Utilisateur } from '../../services/utilisateur';
-import { VisiteService } from '../../services/visite';
+import { VisiteService, Visite } from '../../services/visite';
 import { AuthService } from '../../services/auth';
 
 @Component({
@@ -25,8 +23,6 @@ import { AuthService } from '../../services/auth';
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatIconModule
   ],
   templateUrl: './visite-form.html',
@@ -34,21 +30,25 @@ import { AuthService } from '../../services/auth';
 })
 export class VisiteForm implements OnInit {
 
-  tunnels: Tunnel[] = [];
+  tunnels: Tunnel[]         = [];
   ingenieurs: Utilisateur[] = [];
+  chargeMissionId: string   = '';
 
   visite = {
-    tunnelId: '',
-    ingenieurId: '',
-    typeVisite: 'PERIODIQUE',
+    tunnelId:           '',
+    ingenieurId:        '',
+    typeVisite:         'PERIODIQUE',
     datePrevisionnelle: '',
-    priorite: 'NORMALE'
+    priorite:           'NORMALE'
   };
 
   typesVisite = ['PERIODIQUE', 'APPROFONDIE', 'PONCTUELLE', 'POST_INCIDENT'];
-  priorites = ['NORMALE', 'HAUTE', 'CRITIQUE'];
+  priorites   = ['NORMALE', 'HAUTE', 'CRITIQUE'];
 
-  chargeMissionId: string = '';
+  // RG-PLAN-03 : détection de conflit
+  conflitDetecte    = false;
+  ingenieurVisites: Visite[] = [];
+  loading = false;
 
   constructor(
     private dialogRef: MatDialogRef<VisiteForm>,
@@ -66,31 +66,56 @@ export class VisiteForm implements OnInit {
     });
   }
 
-  soumettre(): void {
-    if (!this.visite.tunnelId || !this.visite.ingenieurId || !this.visite.datePrevisionnelle) {
-      return;
-    }
-
-    const body = {
-      typeVisite: this.visite.typeVisite,
-      datePrevisionnelle: this.visite.datePrevisionnelle,
-      priorite: this.visite.priorite,
-      statut: 'PLANIFIEE'
-    };
-
-    this.visiteService.creer(this.visite.tunnelId, this.chargeMissionId, body).subscribe({
-      next: (visite) => {
-        // Assigner l'ingénieur via visite_intervenant
-        this.visiteService.assignerIntervenant(visite.id, this.visite.ingenieurId).subscribe({
-          next: () => this.dialogRef.close(true),
-          error: () => this.dialogRef.close(true)
-        });
+  onIngenieurChange(): void {
+    this.ingenieurVisites = [];
+    this.conflitDetecte   = false;
+    if (!this.visite.ingenieurId) return;
+    this.visiteService.getVisitesByIntervenant(this.visite.ingenieurId).subscribe({
+      next: (visites) => {
+        this.ingenieurVisites = visites.filter(v => v.statut === 'PLANIFIEE');
+        this.verifierConflit();
       },
-      error: (err) => console.error(err)
+      error: () => { this.ingenieurVisites = []; }
     });
   }
 
-  annuler(): void {
-    this.dialogRef.close(false);
+  onDateChange(): void { this.verifierConflit(); }
+
+  private verifierConflit(): void {
+    if (!this.visite.ingenieurId || !this.visite.datePrevisionnelle) {
+      this.conflitDetecte = false; return;
+    }
+    this.conflitDetecte = this.ingenieurVisites.some(v =>
+      v.datePrevisionnelle?.startsWith(this.visite.datePrevisionnelle)
+    );
   }
+
+  get ingenieurConflitLabel(): string {
+    const v = this.ingenieurVisites.find(v =>
+      v.datePrevisionnelle?.startsWith(this.visite.datePrevisionnelle)
+    );
+    return v ? `${v.tunnel?.nom ?? 'autre tunnel'} — ${v.typeVisite}` : '';
+  }
+
+  soumettre(): void {
+    if (!this.visite.tunnelId || !this.visite.ingenieurId || !this.visite.datePrevisionnelle) return;
+    this.loading = true;
+    const body = {
+      typeVisite:         this.visite.typeVisite,
+      datePrevisionnelle: this.visite.datePrevisionnelle,
+      priorite:           this.visite.priorite,
+      statut:             'PLANIFIEE'
+    };
+    this.visiteService.creer(this.visite.tunnelId, this.chargeMissionId, body).subscribe({
+      next: (visite) => {
+        this.visiteService.assignerIntervenant(visite.id, this.visite.ingenieurId).subscribe({
+          next:  () => { this.loading = false; this.dialogRef.close(true); },
+          error: () => { this.loading = false; this.dialogRef.close(true); }
+        });
+      },
+      error: (err) => { this.loading = false; console.error(err); }
+    });
+  }
+
+  annuler(): void { this.dialogRef.close(false); }
 }

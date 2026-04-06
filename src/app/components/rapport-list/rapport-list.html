@@ -1,97 +1,289 @@
-<div class="rapport-list-container">
+<div class="rapports-page">
 
+  <!-- ── En-tête ── -->
   <div class="page-header">
-    <h1>Rapports de visite</h1>
-    <p class="subtitle">{{ rapports.length }} rapport(s) enregistrés dans RTGS</p>
+    <div>
+      <h1>Rapports de visite</h1>
+      <p>{{ rapports.length }} rapport(s) · Cycle Visite → Rapport → Validation</p>
+    </div>
   </div>
 
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>assignment</mat-icon>
-        Cycle Visite → Rapport → Validation
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <table mat-table [dataSource]="rapports" class="full-width">
+  <!-- ── Stats rapides ── -->
+  <div class="stats-row">
+    <div class="stat-card" [class.active]="filtreStatut === ''" (click)="filtrerStatut('')">
+      <div class="stat-val">{{ rapports.length }}</div>
+      <div class="stat-lbl">Total</div>
+    </div>
+    <div class="stat-card soumis" [class.active]="filtreStatut === 'SOUMIS'" (click)="filtrerStatut('SOUMIS')">
+      <div class="stat-val">{{ countStatut('SOUMIS') }}</div>
+      <div class="stat-lbl">En attente</div>
+    </div>
+    <div class="stat-card corriger" [class.active]="filtreStatut === 'A_CORRIGER'" (click)="filtrerStatut('A_CORRIGER')">
+      <div class="stat-val">{{ countStatut('A_CORRIGER') }}</div>
+      <div class="stat-lbl">À corriger</div>
+    </div>
+    <div class="stat-card valide" [class.active]="filtreStatut === 'VALIDE'" (click)="filtrerStatut('VALIDE')">
+      <div class="stat-val">{{ countStatut('VALIDE') }}</div>
+      <div class="stat-lbl">Validés</div>
+    </div>
+    <div class="stat-card brouillon" [class.active]="filtreStatut === 'BROUILLON'" (click)="filtrerStatut('BROUILLON')">
+      <div class="stat-val">{{ countStatut('BROUILLON') }}</div>
+      <div class="stat-lbl">Brouillons</div>
+    </div>
+  </div>
 
-        <ng-container matColumnDef="tunnel">
-          <th mat-header-cell *matHeaderCellDef>Tunnel</th>
-          <td mat-cell *matCellDef="let r">
-            <strong>{{ r.visite?.tunnel?.nom }}</strong><br>
-            <small>{{ r.visite?.tunnel?.localisation }}</small>
-          </td>
-        </ng-container>
+  <!-- ── Zone principale ── -->
+  <div class="rapports-layout" [class.detail-open]="rapportSelectionne">
 
-        <ng-container matColumnDef="auteur">
-          <th mat-header-cell *matHeaderCellDef>Auteur</th>
-          <td mat-cell *matCellDef="let r">
-            {{ r.auteur?.prenom }} {{ r.auteur?.nom }}<br>
-            <small>{{ r.auteur?.role }}</small>
-          </td>
-        </ng-container>
+    <!-- Colonne liste -->
+    <div class="rapports-list-col">
 
-        <ng-container matColumnDef="typeVisite">
-          <th mat-header-cell *matHeaderCellDef>Type de visite</th>
-          <td mat-cell *matCellDef="let r">{{ r.visite?.typeVisite }}</td>
-        </ng-container>
+      <!-- Barre de recherche -->
+      <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+        </svg>
+        <input type="text"
+               [(ngModel)]="recherche"
+               (ngModelChange)="filtrer()"
+               placeholder="Rechercher par tunnel, auteur…"
+               class="search-input">
+        @if (recherche) {
+          <button class="search-clear" (click)="recherche = ''; filtrer()">✕</button>
+        }
+      </div>
 
-        <ng-container matColumnDef="dateSoumission">
-          <th mat-header-cell *matHeaderCellDef>Soumis le</th>
-          <td mat-cell *matCellDef="let r">
-            {{ r.dateSoumission ? (r.dateSoumission | date:'dd/MM/yyyy HH:mm') : '—' }}
-          </td>
-        </ng-container>
+      <!-- Tableau -->
+      <div class="rapports-table-card">
 
-        <ng-container matColumnDef="statut">
-          <th mat-header-cell *matHeaderCellDef>Statut</th>
-          <td mat-cell *matCellDef="let r">
-            <mat-chip [color]="getStatutColor(r.statut)" highlighted>
-              <mat-icon>{{ getStatutIcon(r.statut) }}</mat-icon>
-              {{ r.statut }}
-            </mat-chip>
-          </td>
-        </ng-container>
+        <div class="table-header-row">
+          <span class="th" style="flex:2.5">Rapport</span>
+          <span class="th" style="flex:1.5">Auteur</span>
+          <span class="th" style="flex:1">Type</span>
+          <span class="th" style="flex:1">Soumis le</span>
+          <span class="th" style="flex:0.8">Statut</span>
+          <span class="th" style="flex:1.5; text-align:right">Actions</span>
+        </div>
 
-        <ng-container matColumnDef="version">
-          <th mat-header-cell *matHeaderCellDef>Version</th>
-          <td mat-cell *matCellDef="let r">v{{ r.version }}</td>
-        </ng-container>
+        @if (rapportsFiltres.length === 0) {
+          <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <p>Aucun rapport trouvé</p>
+            <button class="btn btn-ghost btn-sm" (click)="recherche = ''; filtrerStatut('')">Réinitialiser</button>
+          </div>
+        }
 
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef>Actions</th>
-          <td mat-cell *matCellDef="let r">
-            <button mat-icon-button color="primary"
-                    *ngIf="peutValider(r)"
-                    (click)="valider(r)"
-                    matTooltip="Valider le rapport">
-              <mat-icon>check_circle</mat-icon>
-            </button>
-            <button mat-icon-button color="warn"
-                    *ngIf="peutCorrection(r)"
-                    (click)="corriger(r)"
-                    matTooltip="Retourner pour correction">
-              <mat-icon>replay</mat-icon>
-            </button>
-            <span *ngIf="r.statut === 'VALIDE'" class="valide-info">
-              <mat-icon color="accent">verified</mat-icon>
-              Validé par {{ r.validateur?.prenom }} {{ r.validateur?.nom }}
+        @for (r of rapportsFiltres; track r.id) {
+          <div class="rapport-row"
+               [class.selected]="rapportSelectionne?.id === r.id"
+               [class.row-soumis]="r.statut === 'SOUMIS'"
+               [class.row-corriger]="r.statut === 'A_CORRIGER'"
+               [class.row-valide]="r.statut === 'VALIDE'"
+               (click)="selectionner(r)">
+
+            <!-- Rapport (tunnel + version) -->
+            <div class="td" style="flex:2.5">
+              <div class="rapport-main">
+                <div class="tunnel-nom">
+                  {{ getTunnelNom(r) }}
+                </div>
+                <div class="rapport-meta">
+                  <span class="version-badge">v{{ r.version }}</span>
+                  @if (r.visite?.tunnel?.localisation) {
+                    <span class="meta-sep">·</span>
+                    <span class="localisation">{{ r.visite.tunnel.localisation }}</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <!-- Auteur -->
+            <div class="td td-row" style="flex:1.5">
+              <div class="auteur-avatar">{{ getInitiales(r.auteur) }}</div>
+              <div class="auteur-info">
+                <div class="auteur-nom">{{ r.auteur?.prenom }} {{ r.auteur?.nom }}</div>
+                <div class="auteur-role">{{ getRoleLabel(r.auteur?.role) }}</div>
+              </div>
+            </div>
+
+            <!-- Type de visite -->
+            <div class="td" style="flex:1">
+              <span class="type-visite-chip" [ngClass]="getTypeVisiteClass(r.visite?.typeVisite)">
+                {{ r.visite?.typeVisite || '—' }}
+              </span>
+            </div>
+
+            <!-- Date soumission -->
+            <div class="td" style="flex:1">
+              @if (r.dateSoumission) {
+                <div class="date-text">{{ r.dateSoumission | date:'dd/MM/yyyy' }}</div>
+                <div class="date-sub">{{ r.dateSoumission | date:'HH:mm' }}</div>
+              } @else {
+                <span class="dash">—</span>
+              }
+            </div>
+
+            <!-- Statut -->
+            <div class="td" style="flex:0.8">
+              <span class="statut-badge" [ngClass]="getStatutClass(r.statut)">
+                {{ getStatutLabel(r.statut) }}
+              </span>
+            </div>
+
+            <!-- Actions -->
+            <div class="td actions-td" style="flex:1.5; justify-content:flex-end" (click)="$event.stopPropagation()">
+              @if (peutValider(r)) {
+                <button class="action-btn valider-btn" (click)="valider(r)" title="Valider">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                  Valider
+                </button>
+              }
+              @if (peutCorrection(r)) {
+                <button class="action-btn corriger-btn" (click)="corriger(r)" title="Corriger">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+                  Corriger
+                </button>
+              }
+              @if (r.statut === 'VALIDE') {
+                <span class="valide-info">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                  {{ r.validateur?.prenom }} {{ r.validateur?.nom }}
+                </span>
+              }
+              @if (r.statut === 'A_CORRIGER') {
+                <span class="corriger-info" title="{{ r.commentaireRejet }}">
+                  <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  En correction
+                </span>
+              }
+              <button class="detail-btn" [class.active]="rapportSelectionne?.id === r.id" title="Voir les détails" (click)="selectionner(r); $event.stopPropagation()">
+                <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+              </button>
+            </div>
+
+          </div>
+        }
+
+      </div>
+    </div>
+
+    <!-- Panneau de détail latéral -->
+    @if (rapportSelectionne) {
+      <div class="rapport-detail-panel">
+
+        <div class="dp-header">
+          <div>
+            <div class="dp-eyebrow">Fiche rapport</div>
+            <h2 class="dp-title">{{ getTunnelNom(rapportSelectionne) }}</h2>
+          </div>
+          <button class="dp-close" (click)="rapportSelectionne = null">✕</button>
+        </div>
+
+        <!-- Statut + version -->
+        <div class="dp-status-bar">
+          <span class="statut-badge" [ngClass]="getStatutClass(rapportSelectionne.statut)">
+            {{ getStatutLabel(rapportSelectionne.statut) }}
+          </span>
+          <span class="version-badge">v{{ rapportSelectionne.version }}</span>
+          @if (rapportSelectionne.visite?.typeVisite) {
+            <span class="type-visite-chip" [ngClass]="getTypeVisiteClass(rapportSelectionne.visite.typeVisite)">
+              {{ rapportSelectionne.visite.typeVisite }}
             </span>
-            <span *ngIf="r.statut === 'A_CORRIGER'" class="correction-info">
-              <mat-icon color="warn">info</mat-icon>
-              {{ r.commentaireRejet }}
-            </span>
-          </td>
-        </ng-container>
+          }
+        </div>
 
-        <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
-        <tr mat-row *matRowDef="let row; columns: colonnes;"
-            (click)="ouvrirDetail(row)"
-            class="clickable-row"></tr>
+        <!-- Auteur -->
+        <div class="dp-section">
+          <div class="dp-section-title">👤 Auteur</div>
+          <div class="dp-auteur">
+            <div class="auteur-avatar lg">{{ getInitiales(rapportSelectionne.auteur) }}</div>
+            <div>
+              <div class="auteur-nom">{{ rapportSelectionne.auteur?.prenom }} {{ rapportSelectionne.auteur?.nom }}</div>
+              <div class="auteur-role">{{ getRoleLabel(rapportSelectionne.auteur?.role) }}</div>
+            </div>
+          </div>
+        </div>
 
+        <!-- Dates -->
+        <div class="dp-section">
+          <div class="dp-section-title">📅 Dates</div>
+          <div class="dp-info-grid">
+            <div class="dp-info-item">
+              <span class="dp-label">Soumis le</span>
+              <span class="dp-value">
+                {{ rapportSelectionne.dateSoumission ? (rapportSelectionne.dateSoumission | date:'dd/MM/yyyy HH:mm') : '—' }}
+              </span>
+            </div>
+            @if (rapportSelectionne.dateValidation) {
+              <div class="dp-info-item">
+                <span class="dp-label">Validé le</span>
+                <span class="dp-value">{{ rapportSelectionne.dateValidation | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            }
+          </div>
+        </div>
 
-      </table>
-    </mat-card-content>
-  </mat-card>
+        <!-- Tunnel si dispo -->
+        @if (rapportSelectionne.visite?.tunnel) {
+          <div class="dp-section">
+            <div class="dp-section-title">🚇 Tunnel</div>
+            <div class="dp-info-grid">
+              <div class="dp-info-item full">
+                <span class="dp-label">Nom</span>
+                <span class="dp-value">{{ rapportSelectionne.visite.tunnel.nom }}</span>
+              </div>
+              @if (rapportSelectionne.visite.tunnel.localisation) {
+                <div class="dp-info-item full">
+                  <span class="dp-label">Localisation</span>
+                  <span class="dp-value">{{ rapportSelectionne.visite.tunnel.localisation }}</span>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Motif correction -->
+        @if (rapportSelectionne.commentaireRejet) {
+          <div class="dp-section">
+            <div class="dp-section-title">⚠️ Motif de correction</div>
+            <div class="correction-msg">{{ rapportSelectionne.commentaireRejet }}</div>
+          </div>
+        }
+
+        <!-- Validateur -->
+        @if (rapportSelectionne.validateur) {
+          <div class="dp-section">
+            <div class="dp-section-title">✅ Validation</div>
+            <div class="dp-info-grid">
+              <div class="dp-info-item full">
+                <span class="dp-label">Validé par</span>
+                <span class="dp-value">{{ rapportSelectionne.validateur?.prenom }} {{ rapportSelectionne.validateur?.nom }}</span>
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="dp-actions">
+          <button class="btn btn-primary" (click)="ouvrirDetail(rapportSelectionne)">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+            Voir le rapport complet
+          </button>
+          @if (peutValider(rapportSelectionne)) {
+            <button class="btn btn-success" (click)="valider(rapportSelectionne)">
+              Valider le rapport
+            </button>
+          }
+          @if (peutCorrection(rapportSelectionne)) {
+            <button class="btn btn-danger" (click)="corriger(rapportSelectionne)">
+              Renvoyer pour correction
+            </button>
+          }
+        </div>
+
+      </div>
+    }
+
+  </div>
 
 </div>
