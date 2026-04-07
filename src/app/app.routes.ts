@@ -11,6 +11,8 @@ import { chargeMissionGuard } from './guards/charge-mission-guard';
 import { ingenieurGuard } from './guards/ingenieur-guard';
 import { RapportForm } from './components/rapport-form/rapport-form';
 import { Landing } from './components/landing/landing';
+import { TunnelDetail } from './components/tunnel-detail/tunnel-detail';
+import { MesVisites } from './components/mes-visites/mes-visites';
 
 export const routes: Routes = [
   { path: '', component: Landing },
@@ -19,9 +21,11 @@ export const routes: Routes = [
   // Chargé de mission uniquement
   { path: 'dashboard', component: DashboardComponent, canActivate: [chargeMissionGuard] },
   { path: 'tunnels', component: TunnelList, canActivate: [chargeMissionGuard] },
+  { path: 'tunnels/:id', component: TunnelDetail, canActivate: [chargeMissionGuard] },
 
   // Ingénieur uniquement
   { path: 'dashboard-ingenieur', component: DashboardIngenieur, canActivate: [ingenieurGuard] },
+  { path: 'mes-visites', component: MesVisites, canActivate: [ingenieurGuard] },
 
   // Exploitant — authGuard suffit car le dashboard exploitant est sa seule page
   { path: 'dashboard-exploitant', component: DashboardExploitant, canActivate: [authGuard] },

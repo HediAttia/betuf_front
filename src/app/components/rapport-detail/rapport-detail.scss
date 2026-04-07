@@ -31,6 +31,76 @@
   }
 }
 
+/* ── Workflow stepper ── */
+.workflow-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 20px 24px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.ws-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.ws-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all .2s;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+.ws-done-circle {
+  background: #16a34a;
+  color: #fff;
+}
+
+.ws-warn-circle {
+  background: #f59e0b;
+  color: #fff;
+}
+
+.ws-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.ws-done .ws-label { color: #16a34a; }
+.ws-warn .ws-label { color: #f59e0b; }
+
+.ws-line {
+  flex: 1;
+  height: 2px;
+  background: #e2e8f0;
+  min-width: 32px;
+  margin-bottom: 20px;
+  transition: background .2s;
+}
+
+.ws-line-done { background: #16a34a; }
+
 /* ── Status bars ── */
 .actions-card {
   margin-bottom: 20px;

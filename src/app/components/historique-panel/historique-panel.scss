@@ -1,0 +1,80 @@
+.historique-card {
+  margin-top: 20px;
+  mat-card-header mat-card-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 16px; font-weight: 600; color: #2c3e50;
+    mat-icon { color: #2980b9; }
+  }
+}
+
+.historique-loading, .historique-empty {
+  display: flex; align-items: center; gap: 8px;
+  padding: 16px 0; color: #95a5a6; font-size: 14px;
+  mat-icon { font-size: 20px; }
+}
+
+.timeline { position: relative; padding: 8px 0; }
+
+.timeline-item {
+  display: flex; position: relative; padding-bottom: 24px;
+  &:last-child { padding-bottom: 0; }
+}
+
+.timeline-dot {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; background: #bdc3c7; z-index: 1;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; color: #fff; }
+}
+
+.timeline-connector {
+  position: absolute; left: 15px; top: 32px; bottom: 0;
+  width: 2px; background: #e0e0e0;
+}
+
+.timeline-content { margin-left: 16px; flex: 1; }
+.timeline-header { margin-bottom: 4px; }
+
+.timeline-transition {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 14px; font-weight: 500;
+}
+
+.statut-ancien { color: #95a5a6; text-decoration: line-through; }
+.arrow-icon { font-size: 16px; width: 16px; height: 16px; color: #bdc3c7; }
+.statut-nouveau { font-weight: 600; }
+
+.timeline-meta {
+  display: flex; gap: 16px; font-size: 12px; color: #7f8c8d; margin-top: 2px;
+  span { display: flex; align-items: center; gap: 4px; }
+  mat-icon { font-size: 14px; width: 14px; height: 14px; }
+}
+
+.timeline-role { font-style: italic; color: #95a5a6; }
+.timeline-date { white-space: nowrap; }
+
+.timeline-comment {
+  display: flex; align-items: flex-start; gap: 6px;
+  margin-top: 6px; padding: 8px 12px;
+  background: #fef9e7; border-left: 3px solid #f39c12;
+  border-radius: 4px; font-size: 13px; color: #7d6608;
+  mat-icon { font-size: 16px; width: 16px; height: 16px; flex-shrink: 0; margin-top: 1px; }
+}
+
+.step-brouillon  { background: #95a5a6; }
+.step-soumis     { background: #2980b9; }
+.step-correction { background: #f39c12; }
+.step-valide     { background: #27ae60; }
+.step-planifiee  { background: #3498db; }
+.step-realisee   { background: #2ecc71; }
+.step-cloturee   { background: #8e44ad; }
+.step-annulee    { background: #e74c3c; }
+
+span.statut-nouveau.step-soumis     { color: #2980b9; }
+span.statut-nouveau.step-correction { color: #f39c12; }
+span.statut-nouveau.step-valide     { color: #27ae60; }
+span.statut-nouveau.step-brouillon  { color: #95a5a6; }
+span.statut-nouveau.step-planifiee  { color: #3498db; }
+span.statut-nouveau.step-realisee   { color: #2ecc71; }
+span.statut-nouveau.step-cloturee   { color: #8e44ad; }
+span.statut-nouveau.step-annulee    { color: #e74c3c; }

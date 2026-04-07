@@ -1,0 +1,236 @@
+<div class="mes-visites-page">
+
+  <div class="dash-header">
+    <div>
+      <h1>Mes visites</h1>
+      <p class="dash-subtitle">Visites assignées et historique des interventions</p>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <mat-icon class="stat-icon planifiees">event</mat-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ visitesPlanifiees.length }}</span>
+        <span class="stat-label">À réaliser</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <mat-icon class="stat-icon realisees">check</mat-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ visitesRealisees.length }}</span>
+        <span class="stat-label">Réalisées</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <mat-icon class="stat-icon cloturees">lock</mat-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ visitesCloturees.length }}</span>
+        <span class="stat-label">Clôturées</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <mat-icon class="stat-icon total">assignment</mat-icon>
+      <div class="stat-content">
+        <span class="stat-number">{{ visites.length }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+    </div>
+  </div>
+
+  <mat-tab-group animationDuration="200ms" class="visites-tabs">
+
+    <!-- PLANIFIÉES -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        À réaliser
+        @if (visitesPlanifiees.length > 0) {
+          <span class="tab-badge">{{ visitesPlanifiees.length }}</span>
+        }
+      </ng-template>
+      <div class="tab-content">
+        @for (v of visitesPlanifiees; track v.id) {
+          <div class="visite-card">
+            <div class="visite-card-header">
+              <div class="visite-card-tunnel" (click)="voirTunnel(v)">
+                <mat-icon>tunnel</mat-icon>
+                <div>
+                  <span class="tunnel-name">{{ getTunnelNom(v) }}</span>
+                  <span class="tunnel-loc">{{ getTunnelLoc(v) }}</span>
+                </div>
+              </div>
+              <span class="visite-statut" [ngClass]="getStatutClass(v.statut)">{{ getStatutLabel(v.statut) }}</span>
+            </div>
+            <div class="visite-card-body">
+              <div class="visite-info-row">
+                <span><mat-icon>category</mat-icon> {{ v.typeVisite }}</span>
+                <span><mat-icon>event</mat-icon> Prévue le {{ v.datePrevisionnelle | date:'dd/MM/yyyy' }}</span>
+                @if (v.priorite) {
+                  <span><mat-icon>flag</mat-icon> {{ v.priorite }}</span>
+                }
+              </div>
+            </div>
+            <div class="visite-card-actions">
+              <button mat-stroked-button (click)="voirTunnel(v)">
+                <mat-icon>info</mat-icon> Fiche tunnel
+              </button>
+              <button mat-flat-button color="primary" (click)="marquerRealisee(v.id)">
+                <mat-icon>check</mat-icon> Marquer réalisée
+              </button>
+            </div>
+          </div>
+        }
+        @if (visitesPlanifiees.length === 0) {
+          <div class="empty-state">
+            <mat-icon>event_available</mat-icon>
+            <p>Aucune visite planifiée</p>
+            <span>Les visites apparaîtront ici lorsqu'un chargé de mission vous en assignera.</span>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- RÉALISÉES -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Réalisées
+        @if (visitesRealisees.length > 0) {
+          <span class="tab-badge warn">{{ visitesRealisees.length }}</span>
+        }
+      </ng-template>
+      <div class="tab-content">
+        @for (v of visitesRealisees; track v.id) {
+          <div class="visite-card">
+            <div class="visite-card-header">
+              <div class="visite-card-tunnel" (click)="voirTunnel(v)">
+                <mat-icon>tunnel</mat-icon>
+                <div>
+                  <span class="tunnel-name">{{ getTunnelNom(v) }}</span>
+                  <span class="tunnel-loc">{{ getTunnelLoc(v) }}</span>
+                </div>
+              </div>
+              <span class="visite-statut" [ngClass]="getStatutClass(v.statut)">{{ getStatutLabel(v.statut) }}</span>
+            </div>
+            <div class="visite-card-body">
+              <div class="visite-info-row">
+                <span><mat-icon>category</mat-icon> {{ v.typeVisite }}</span>
+                <span><mat-icon>event</mat-icon> Réalisée le {{ v.dateRealisation | date:'dd/MM/yyyy' }}</span>
+              </div>
+              @if (getRapportForVisite(v.id); as rapport) {
+                <div class="rapport-status-row">
+                  <span class="rapport-badge" [ngClass]="getRapportStatutClass(rapport)">
+                    📋 Rapport : {{ getRapportStatutLabel(rapport) }}
+                  </span>
+                  <button mat-stroked-button (click)="ouvrirRapport(rapport)">
+                    {{ rapport.statut === 'BROUILLON' || rapport.statut === 'A_CORRIGER' ? 'Modifier' : 'Consulter' }}
+                  </button>
+                </div>
+              }
+            </div>
+            <div class="visite-card-actions">
+              <button mat-stroked-button (click)="voirTunnel(v)">
+                <mat-icon>info</mat-icon> Fiche tunnel
+              </button>
+              @if (!getRapportForVisite(v.id)) {
+                <button mat-flat-button color="primary" (click)="redigerRapport(v)">
+                  <mat-icon>edit_note</mat-icon> Rédiger le rapport
+                </button>
+              }
+            </div>
+          </div>
+        }
+        @if (visitesRealisees.length === 0) {
+          <div class="empty-state">
+            <mat-icon>check_circle</mat-icon>
+            <p>Aucune visite en attente de rapport</p>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- CLÔTURÉES -->
+    <mat-tab>
+      <ng-template mat-tab-label>
+        Clôturées
+        @if (visitesCloturees.length > 0) {
+          <span class="tab-badge success">{{ visitesCloturees.length }}</span>
+        }
+      </ng-template>
+      <div class="tab-content">
+        @for (v of visitesCloturees; track v.id) {
+          <div class="visite-card closed">
+            <div class="visite-card-header">
+              <div class="visite-card-tunnel" (click)="voirTunnel(v)">
+                <mat-icon>tunnel</mat-icon>
+                <div>
+                  <span class="tunnel-name">{{ getTunnelNom(v) }}</span>
+                  <span class="tunnel-loc">{{ getTunnelLoc(v) }}</span>
+                </div>
+              </div>
+              <span class="visite-statut statut-cloturee">Clôturée</span>
+            </div>
+            <div class="visite-card-body">
+              <div class="visite-info-row">
+                <span><mat-icon>category</mat-icon> {{ v.typeVisite }}</span>
+                <span><mat-icon>event</mat-icon> {{ v.dateRealisation | date:'dd/MM/yyyy' }}</span>
+              </div>
+              @if (getRapportForVisite(v.id); as rapport) {
+                <div class="rapport-status-row">
+                  <span class="rapport-badge rapport-valide">📋 Rapport validé</span>
+                  <button mat-stroked-button (click)="ouvrirRapport(rapport)">Consulter</button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+        @if (visitesCloturees.length === 0) {
+          <div class="empty-state">
+            <mat-icon>archive</mat-icon>
+            <p>Aucune visite clôturée</p>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+    <!-- TOUTES -->
+    <mat-tab label="Toutes">
+      <div class="tab-content">
+        @for (v of visites; track v.id) {
+          <div class="visite-card" [class.closed]="v.statut === 'CLOTUREE'">
+            <div class="visite-card-header">
+              <div class="visite-card-tunnel" (click)="voirTunnel(v)">
+                <mat-icon>tunnel</mat-icon>
+                <div>
+                  <span class="tunnel-name">{{ getTunnelNom(v) }}</span>
+                  <span class="tunnel-loc">{{ getTunnelLoc(v) }}</span>
+                </div>
+              </div>
+              <span class="visite-statut" [ngClass]="getStatutClass(v.statut)">{{ getStatutLabel(v.statut) }}</span>
+            </div>
+            <div class="visite-card-body">
+              <div class="visite-info-row">
+                <span><mat-icon>category</mat-icon> {{ v.typeVisite }}</span>
+                <span><mat-icon>event</mat-icon> {{ (v.dateRealisation || v.datePrevisionnelle) | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+        }
+        @if (visites.length === 0 && !loading) {
+          <div class="empty-state">
+            <mat-icon>inbox</mat-icon>
+            <p>Aucune visite assignée</p>
+          </div>
+        }
+      </div>
+    </mat-tab>
+
+  </mat-tab-group>
+
+</div>
+
+@if (loading) {
+  <div class="loading">
+    <mat-icon>hourglass_empty</mat-icon>
+    <p>Chargement des visites...</p>
+  </div>
+}

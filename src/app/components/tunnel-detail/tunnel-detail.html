@@ -1,0 +1,257 @@
+@if (tunnel) {
+  <div class="tunnel-detail-page">
+
+    <nav class="breadcrumb">
+      <a (click)="retour()">Référentiel tunnels</a>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="breadcrumb-current">{{ tunnel.nom }}</span>
+    </nav>
+
+    <div class="tunnel-header">
+      <div class="tunnel-header-left">
+        <h1>
+          {{ tunnel.nom }}
+          <span class="tunnel-statut-badge" [ngClass]="getStatutTunnelClass(tunnel.statut)">
+            {{ getStatutTunnelLabel(tunnel.statut) }}
+          </span>
+        </h1>
+        <p class="tunnel-meta">
+          {{ tunnel.localisation }} · {{ tunnel.typeTunnel }}
+          @if (tunnel.departement) { · Dép. {{ tunnel.departement }} }
+        </p>
+      </div>
+      @if (userRole === 'CHARGE_MISSION') {
+        <div class="tunnel-header-actions">
+          <button mat-stroked-button (click)="planifierVisite()">
+            <mat-icon>event</mat-icon> Planifier visite
+          </button>
+        </div>
+      }
+    </div>
+
+    <mat-tab-group [(selectedIndex)]="activeTab" animationDuration="200ms" class="tunnel-tabs">
+
+      <!-- INFORMATIONS GÉNÉRALES -->
+      <mat-tab label="Informations générales">
+        <div class="tab-content">
+          <div class="info-two-col">
+            <div class="info-card">
+              <h3>Identification</h3>
+              <div class="info-table">
+                <div class="info-row">
+                  <span class="info-label">Nom de l'ouvrage</span>
+                  <span class="info-value">{{ tunnel.nom }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Type d'ouvrage</span>
+                  <span class="info-value">{{ tunnel.typeTunnel }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Longueur</span>
+                  <span class="info-value">{{ tunnel.longueurM | number }} m</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Statut</span>
+                  <span class="info-value">
+                    <span class="inline-badge" [ngClass]="getStatutTunnelClass(tunnel.statut)">
+                      {{ getStatutTunnelLabel(tunnel.statut) }}
+                    </span>
+                  </span>
+                </div>
+                @if (tunnel.idMagali) {
+                  <div class="info-row">
+                    <span class="info-label">Identifiant MAGALI</span>
+                    <span class="info-value mono">{{ tunnel.idMagali }}</span>
+                  </div>
+                }
+                @if (tunnel.idLagora) {
+                  <div class="info-row">
+                    <span class="info-label">Identifiant LAGORA</span>
+                    <span class="info-value mono">{{ tunnel.idLagora }}</span>
+                  </div>
+                }
+                <div class="info-row">
+                  <span class="info-label">Périodicité de visite</span>
+                  <span class="info-value">{{ tunnel.periodiciteMois }} mois</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-card">
+              <h3>Localisation &amp; exploitant</h3>
+              <div class="info-table">
+                <div class="info-row">
+                  <span class="info-label">Localisation</span>
+                  <span class="info-value">{{ tunnel.localisation }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Département</span>
+                  <span class="info-value">{{ tunnel.departement }}</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Exploitant</span>
+                  <span class="info-value">{{ tunnel.exploitantNom || '—' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- VISITES & HISTORIQUE -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          Visites &amp; historique
+          @if (visites.length > 0) {
+            <span class="tab-count">{{ visites.length }}</span>
+          }
+        </ng-template>
+        <div class="tab-content">
+          <div class="section-bar">
+            <h3>Historique des visites</h3>
+            @if (userRole === 'CHARGE_MISSION') {
+              <button mat-flat-button color="primary" (click)="planifierVisite()">
+                <mat-icon>add</mat-icon> Planifier une visite
+              </button>
+            }
+          </div>
+
+          @if (visites.length > 0) {
+            <div class="visites-table">
+              <div class="table-header">
+                <span class="col-date">DATE</span>
+                <span class="col-type">TYPE</span>
+                <span class="col-statut">STATUT</span>
+                <span class="col-rapport">RAPPORT</span>
+                <span class="col-action">ACTION</span>
+              </div>
+              @for (v of visites; track v.id) {
+                <div class="table-row">
+                  <span class="col-date">{{ (v.dateRealisation || v.datePrevisionnelle) | date:'dd/MM/yyyy' }}</span>
+                  <span class="col-type"><span class="type-badge">{{ v.typeVisite }}</span></span>
+                  <span class="col-statut">
+                    <span class="statut-chip" [ngClass]="getVisiteStatutClass(v.statut)">
+                      {{ getVisiteStatutLabel(v.statut) }}
+                    </span>
+                  </span>
+                  <span class="col-rapport">
+                    @if (getRapportForVisite(v.id); as rapport) {
+                      <span class="rapport-chip" [ngClass]="getRapportStatutClass(rapport)">
+                        {{ getRapportStatutLabel(rapport) }}
+                      </span>
+                    } @else {
+                      <span class="no-rapport">—</span>
+                    }
+                  </span>
+                  <span class="col-action">
+                    @if (getRapportForVisite(v.id); as rapport) {
+                      <a class="action-link" (click)="ouvrirRapport(rapport)">
+                        {{ rapport.statut === 'BROUILLON' ? 'Compléter' : 'Consulter' }}
+                      </a>
+                    } @else if (v.statut === 'PLANIFIEE') {
+                      <span class="action-pending">En attente</span>
+                    } @else if (v.statut === 'REALISEE') {
+                      <span class="action-pending">Rapport manquant</span>
+                    }
+                  </span>
+                </div>
+              }
+            </div>
+          }
+
+          @if (visites.length === 0 && !loading) {
+            <div class="empty-state">
+              <mat-icon>event_busy</mat-icon>
+              <p>Aucune visite enregistrée pour ce tunnel</p>
+              @if (userRole === 'CHARGE_MISSION') {
+                <button mat-stroked-button color="primary" (click)="planifierVisite()">
+                  <mat-icon>add</mat-icon> Planifier une visite
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- VENTILATION -->
+      <mat-tab label="Ventilation">
+        <div class="tab-content">
+          <div class="module-placeholder">
+            <mat-icon>air</mat-icon>
+            <h3>Données de ventilation</h3>
+            <p>Système longitudinal, transversal, débits, trappes de désenfumage.</p>
+            <span class="placeholder-tag">Module à connecter avec LAGORA</span>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- ÉCLAIRAGE -->
+      <mat-tab label="Éclairage">
+        <div class="tab-content">
+          <div class="module-placeholder">
+            <mat-icon>lightbulb</mat-icon>
+            <h3>Données d'éclairage</h3>
+            <p>Éclairage de base, renforcement aux têtes, régime secouru, type de sources.</p>
+            <span class="placeholder-tag">Module à connecter avec LAGORA</span>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- GÉNIE CIVIL -->
+      <mat-tab label="Génie Civil">
+        <div class="tab-content">
+          <div class="module-placeholder">
+            <mat-icon>foundation</mat-icon>
+            <h3>Caractéristiques Génie Civil</h3>
+            <p>Contexte géologique, mode de creusement, étanchéité, revêtement et chaussée.</p>
+            <span class="placeholder-tag">Module à connecter avec MAGALI</span>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- SÉCURITÉ -->
+      <mat-tab label="Sécurité">
+        <div class="tab-content">
+          <div class="module-placeholder">
+            <mat-icon>security</mat-icon>
+            <h3>Sécurité &amp; gestion du trafic</h3>
+            <p>Degré de surveillance, type d'exploitation, postes de secours.</p>
+            <span class="placeholder-tag">Module à connecter avec LAGORA</span>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- ÉLECTRICITÉ -->
+      <mat-tab label="Électricité">
+        <div class="tab-content">
+          <div class="module-placeholder">
+            <mat-icon>bolt</mat-icon>
+            <h3>Alimentation électrique</h3>
+            <p>Type de livraison, puissance totale, postes de transformation, groupes électrogènes.</p>
+            <span class="placeholder-tag">Module à connecter avec LAGORA</span>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- GÉOMÉTRIE -->
+      <mat-tab label="Géométrie">
+        <div class="tab-content">
+          <div class="module-placeholder">
+            <mat-icon>straighten</mat-icon>
+            <h3>Géométrie de l'ouvrage</h3>
+            <p>Par tube : longueur, nombre de voies, section utile, coordonnées, déclivité.</p>
+            <span class="placeholder-tag">Module à connecter avec MAGALI</span>
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+}
+
+@if (loading) {
+  <div class="loading">
+    <mat-icon>hourglass_empty</mat-icon>
+    <p>Chargement de la fiche tunnel...</p>
+  </div>
+}

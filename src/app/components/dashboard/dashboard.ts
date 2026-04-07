@@ -17,6 +17,7 @@ import { VisiteService, Visite } from '../../services/visite';
 import { AlerteService, Alerte } from '../../services/alerte';
 import { VisiteForm } from '../visite-form/visite-form';
 import { AnnulationDialog } from '../annulation-dialog/annulation-dialog';
+import { NotificationPanel } from '../notification-panel/notification-panel';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -40,6 +41,7 @@ export interface CalendarDay {
     MatChipsModule,
     MatIconModule,
     MatButtonModule,
+    NotificationPanel,
     MatBadgeModule,
     MatDialogModule,
     MatFormFieldModule,

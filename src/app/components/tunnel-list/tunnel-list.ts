@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TunnelService, Tunnel } from '../../services/tunnel';
 
@@ -24,7 +24,7 @@ export class TunnelList implements OnInit {
   filtreType: string = '';
   tunnelSelectionne: Tunnel | null = null;
 
-  constructor(private tunnelService: TunnelService) {}
+  constructor(private tunnelService: TunnelService, private router: Router) {}
 
   ngOnInit(): void {
     this.tunnelService.getAll().subscribe((data: Tunnel[]) => {
@@ -60,6 +60,10 @@ export class TunnelList implements OnInit {
 
   selectionner(t: Tunnel): void {
     this.tunnelSelectionne = this.tunnelSelectionne?.id === t.id ? null : t;
+  }
+
+  ouvrirDetail(t: Tunnel): void {
+    this.router.navigate(['/tunnels', t.id]);
   }
 
   getTypeClass(type: string): string {

@@ -1,0 +1,98 @@
+.mes-visites-page { padding: 32px 36px; max-width: 1200px; }
+
+.dash-header {
+  display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;
+  h1 { margin: 0 0 4px; font-size: 24px; font-weight: 700; color: var(--navy); }
+}
+.dash-subtitle { margin: 0; color: var(--gray-500); font-size: 14px; }
+
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px;
+  @media (max-width: 800px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.stat-card {
+  display: flex; align-items: center; gap: 14px; padding: 20px;
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04); transition: box-shadow .15s;
+  &:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+}
+
+.stat-icon {
+  width: 48px !important; height: 48px !important; border-radius: 12px;
+  display: flex !important; align-items: center; justify-content: center;
+  font-size: 26px !important; flex-shrink: 0;
+  &.planifiees { background: #eaf2f8; color: #2980b9; }
+  &.realisees  { background: #eafaf1; color: #27ae60; }
+  &.cloturees  { background: #f4ecf7; color: #8e44ad; }
+  &.total      { background: #f0f0f0; color: #2c3e50; }
+}
+
+.stat-content { display: flex; flex-direction: column; }
+.stat-number { font-size: 22px; font-weight: 700; color: #2c3e50; line-height: 1; }
+.stat-label { font-size: 12px; color: #95a5a6; margin-top: 4px; }
+
+.visites-tabs { background: #fff; border-radius: 8px; border: 1px solid #e8e8e8; overflow: hidden; }
+.tab-content { padding: 20px; }
+
+.tab-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; border-radius: 10px;
+  background: #2980b9; color: #fff; font-size: 11px; font-weight: 600;
+  margin-left: 8px; padding: 0 6px;
+  &.warn    { background: #f39c12; }
+  &.success { background: #27ae60; }
+}
+
+.visite-card {
+  background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
+  padding: 16px; margin-bottom: 12px; transition: box-shadow .15s;
+  &:hover { box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+  &.closed { opacity: .7; background: #fafafa; }
+}
+
+.visite-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+
+.visite-card-tunnel {
+  display: flex; align-items: center; gap: 10px; cursor: pointer;
+  &:hover .tunnel-name { color: #2980b9; text-decoration: underline; }
+  mat-icon { color: #2980b9; font-size: 24px; }
+}
+
+.tunnel-name { display: block; font-size: 15px; font-weight: 600; color: #2c3e50; transition: color .15s; }
+.tunnel-loc  { display: block; font-size: 12px; color: #95a5a6; }
+
+.visite-statut { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 12px; }
+.statut-planifiee { background: #eaf2f8; color: #2980b9; }
+.statut-realisee  { background: #eafaf1; color: #27ae60; }
+.statut-cloturee  { background: #f4ecf7; color: #8e44ad; }
+.statut-annulee   { background: #fdf2f2; color: #e74c3c; }
+
+.visite-card-body { margin-bottom: 12px; }
+
+.visite-info-row {
+  display: flex; gap: 20px; font-size: 13px; color: #5d6d7e; flex-wrap: wrap;
+  span { display: flex; align-items: center; gap: 4px; }
+  mat-icon { font-size: 16px; width: 16px; height: 16px; color: #95a5a6; }
+}
+
+.rapport-status-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.rapport-badge { font-size: 12px; font-weight: 500; padding: 4px 10px; border-radius: 12px; }
+.rapport-brouillon  { background: #f0f0f0; color: #7f8c8d; }
+.rapport-soumis     { background: #eaf2f8; color: #2980b9; }
+.rapport-valide     { background: #eafaf1; color: #27ae60; }
+.rapport-correction { background: #fef9e7; color: #f39c12; }
+
+.visite-card-actions { display: flex; gap: 10px; padding-top: 12px; border-top: 1px solid #f0f0f0; }
+
+.empty-state {
+  text-align: center; padding: 48px 24px; color: #95a5a6;
+  mat-icon { font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px; }
+  p { font-size: 16px; font-weight: 500; color: #7f8c8d; margin: 0 0 4px; }
+  span { font-size: 13px; }
+}
+
+.loading {
+  text-align: center; padding: 60px; color: #95a5a6;
+  mat-icon { font-size: 32px; margin-bottom: 8px; }
+}

@@ -12,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RapportService, Rapport } from '../../services/rapport';
 import { AuthService } from '../../services/auth';
 import { CorrectionDialog } from '../correction-dialog/correction-dialog';
+import { HistoriquePanel } from '../historique-panel/historique-panel';
 
 @Component({
   selector: 'app-rapport-detail',
@@ -26,7 +27,8 @@ import { CorrectionDialog } from '../correction-dialog/correction-dialog';
     MatDividerModule,
     MatTooltipModule,
     MatSnackBarModule,
-    MatDialogModule
+    MatDialogModule,
+    HistoriquePanel
   ],
   templateUrl: './rapport-detail.html',
   styleUrl: './rapport-detail.scss'

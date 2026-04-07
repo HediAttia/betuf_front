@@ -1,0 +1,67 @@
+<mat-card class="historique-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>history</mat-icon> Historique des transitions
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+
+    @if (loading) {
+      <div class="historique-loading">
+        <mat-icon>hourglass_empty</mat-icon>
+        <span>Chargement de l'historique...</span>
+      </div>
+    }
+
+    @if (!loading && historique.length === 0) {
+      <div class="historique-empty">
+        <mat-icon>info_outline</mat-icon>
+        <span>Aucune transition enregistrée pour cette entité.</span>
+      </div>
+    }
+
+    @if (!loading && historique.length > 0) {
+      <div class="timeline">
+        @for (h of historique; track h.id; let last = $last) {
+          <div class="timeline-item">
+            <div class="timeline-dot" [ngClass]="getStatutClass(h.nouveauStatut)">
+              <mat-icon>{{ getStatutIcon(h.nouveauStatut) }}</mat-icon>
+            </div>
+            @if (!last) {
+              <div class="timeline-connector"></div>
+            }
+            <div class="timeline-content">
+              <div class="timeline-header">
+                <span class="timeline-transition">
+                  <span class="statut-ancien">{{ getStatutLabel(h.ancienStatut) }}</span>
+                  <mat-icon class="arrow-icon">arrow_forward</mat-icon>
+                  <span class="statut-nouveau" [ngClass]="getStatutClass(h.nouveauStatut)">
+                    {{ getStatutLabel(h.nouveauStatut) }}
+                  </span>
+                </span>
+              </div>
+              <div class="timeline-meta">
+                <span class="timeline-user">
+                  <mat-icon>person</mat-icon>
+                  {{ h.utilisateur.prenom }} {{ h.utilisateur.nom }}
+                  <span class="timeline-role">({{ getRoleLabel(h.utilisateur.role) }})</span>
+                </span>
+                <span class="timeline-date">
+                  <mat-icon>schedule</mat-icon>
+                  {{ formatDate(h.createdAt) }}
+                </span>
+              </div>
+              @if (h.commentaire) {
+                <div class="timeline-comment">
+                  <mat-icon>comment</mat-icon>
+                  {{ h.commentaire }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+  </mat-card-content>
+</mat-card>

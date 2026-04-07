@@ -14,6 +14,7 @@ import { TunnelService, Tunnel } from '../../services/tunnel';
 import { AuthService } from '../../services/auth';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { NotificationPanel } from '../notification-panel/notification-panel';
 
 interface NonConformite {
   description: string;
@@ -30,6 +31,7 @@ interface NonConformite {
     MatCardModule,
     MatTableModule,
     MatChipsModule,
+    NotificationPanel,
     MatIconModule,
     MatButtonModule,
     MatBadgeModule,

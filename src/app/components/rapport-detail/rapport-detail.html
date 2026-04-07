@@ -20,7 +20,53 @@
       </button>
     </div>
 
-    <!-- Actions pour chargé de mission : valider / corriger -->
+    <!-- ── Workflow stepper ───────────────────────────────────────── -->
+    <div class="workflow-stepper no-print">
+      <div class="ws-step" [class.ws-done]="true">
+        <div class="ws-circle ws-done-circle">
+          <mat-icon>check</mat-icon>
+        </div>
+        <div class="ws-label">Visite planifiée</div>
+      </div>
+      <div class="ws-line" [class.ws-line-done]="rapport.visite?.dateRealisation || rapport.visite?.statut === 'REALISEE' || rapport.visite?.statut === 'CLOTUREE'"></div>
+
+      <div class="ws-step" [class.ws-done]="rapport.visite?.dateRealisation || rapport.visite?.statut === 'REALISEE' || rapport.visite?.statut === 'CLOTUREE'">
+        <div class="ws-circle" [class.ws-done-circle]="rapport.visite?.dateRealisation || rapport.visite?.statut === 'REALISEE' || rapport.visite?.statut === 'CLOTUREE'">
+          <mat-icon>{{ (rapport.visite?.dateRealisation || rapport.visite?.statut === 'REALISEE') ? 'check' : '2' }}</mat-icon>
+        </div>
+        <div class="ws-label">Visite réalisée</div>
+      </div>
+      <div class="ws-line" [class.ws-line-done]="rapport.statut !== 'BROUILLON' || true"></div>
+
+      <div class="ws-step ws-done">
+        <div class="ws-circle ws-done-circle">
+          <mat-icon>check</mat-icon>
+        </div>
+        <div class="ws-label">Saisie rapport</div>
+      </div>
+      <div class="ws-line" [class.ws-line-done]="rapport.statut === 'SOUMIS' || rapport.statut === 'VALIDE' || rapport.statut === 'A_CORRIGER'"></div>
+
+      <div class="ws-step"
+           [class.ws-done]="rapport.statut === 'SOUMIS' || rapport.statut === 'VALIDE'"
+           [class.ws-warn]="rapport.statut === 'A_CORRIGER'">
+        <div class="ws-circle"
+             [class.ws-done-circle]="rapport.statut === 'SOUMIS' || rapport.statut === 'VALIDE'"
+             [class.ws-warn-circle]="rapport.statut === 'A_CORRIGER'">
+          <mat-icon>{{ rapport.statut === 'VALIDE' || rapport.statut === 'SOUMIS' ? 'check' : rapport.statut === 'A_CORRIGER' ? 'replay' : '4' }}</mat-icon>
+        </div>
+        <div class="ws-label">{{ rapport.statut === 'A_CORRIGER' ? 'À corriger' : 'En validation' }}</div>
+      </div>
+      <div class="ws-line" [class.ws-line-done]="rapport.statut === 'VALIDE'"></div>
+
+      <div class="ws-step" [class.ws-done]="rapport.statut === 'VALIDE'">
+        <div class="ws-circle" [class.ws-done-circle]="rapport.statut === 'VALIDE'">
+          <mat-icon>{{ rapport.statut === 'VALIDE' ? 'verified' : '5' }}</mat-icon>
+        </div>
+        <div class="ws-label">Validé</div>
+      </div>
+    </div>
+
+    <!-- Actions chargé de mission -->
     @if (rapport.statut === 'SOUMIS' && estChargeMission) {
       <div class="actions-bar">
         <mat-card class="actions-card">
@@ -39,7 +85,7 @@
       </div>
     }
 
-    <!-- Info ingénieur : rapport en attente, lecture seule -->
+    <!-- Info ingénieur en attente -->
     @if (rapport.statut === 'SOUMIS' && estIngenieur) {
       <div class="actions-bar">
         <mat-card class="actions-card">
@@ -50,7 +96,7 @@
       </div>
     }
 
-    <!-- Bouton modifier pour ingénieur (brouillon ou à corriger) -->
+    <!-- Bouton modifier (ingénieur, brouillon ou à corriger) -->
     @if (peutModifier()) {
       <div class="actions-bar">
         <mat-card class="actions-card">
@@ -156,14 +202,10 @@
               @for (nc of nonConformites; track $index) {
                 <div class="nc-item">
                   <div class="nc-header">
-                    <mat-chip [color]="getCriticiteColor(nc.criticite)" highlighted>
-                      {{ nc.criticite }}
-                    </mat-chip>
+                    <mat-chip [color]="getCriticiteColor(nc.criticite)" highlighted>{{ nc.criticite }}</mat-chip>
                     <strong>{{ nc.description }}</strong>
                   </div>
-                  <p class="nc-localisation">
-                    <mat-icon>location_on</mat-icon> {{ nc.localisation }}
-                  </p>
+                  <p class="nc-localisation"><mat-icon>location_on</mat-icon> {{ nc.localisation }}</p>
                 </div>
               }
             </div>
@@ -182,6 +224,9 @@
       </mat-card>
 
     </div>
+
+    <!-- Historique des transitions -->
+    <app-historique-panel entiteType="RAPPORT" [entiteId]="rapport.id" class="no-print"></app-historique-panel>
 
   </div>
 }

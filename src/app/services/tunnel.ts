@@ -12,6 +12,8 @@ export interface Tunnel {
   exploitantNom: string;
   periodiciteMois: number;
   statut: string;
+  idMagali?: string;
+  idLagora?: string;
   createdAt: string;
 }
 
@@ -38,5 +40,9 @@ export class TunnelService {
 
   search(nom: string): Observable<Tunnel[]> {
     return this.http.get<Tunnel[]>(`${this.apiUrl}/search?nom=${nom}`);
+  }
+
+  getByExploitant(exploitantId: string): Observable<Tunnel[]> {
+    return this.http.get<Tunnel[]>(`${this.apiUrl}/exploitant/${exploitantId}`);
   }
 }
