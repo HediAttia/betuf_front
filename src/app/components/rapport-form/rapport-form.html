@@ -1,142 +1,307 @@
-<div class="form-container">
+<div class="rf-page">
 
-  <div class="form-header">
-    <button mat-button (click)="annuler()">
-      <mat-icon>arrow_back</mat-icon> Retour
+  <!-- ── En-tête sticky ──────────────────────────────────────────────── -->
+  <div class="rf-topbar">
+    <button class="rf-back" (click)="annuler()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"/></svg>
+      Retour
     </button>
-    <h1>Rédiger un rapport de visite</h1>
+
+    <div class="rf-topbar-center">
+      <h1>{{ modeEdition ? 'Modifier le rapport' : 'Rédiger un rapport de visite' }}</h1>
+      @if (autoSaveStatut) {
+        <span class="rf-autosave saved">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          {{ autoSaveStatut }}
+        </span>
+      } @else {
+        <span class="rf-autosave hint">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+          Sauvegarde auto toutes les 2 min
+        </span>
+      }
+    </div>
+
+    <!-- Steps indicator -->
+    <div class="rf-steps">
+      <span class="rf-step active">1 Visite</span>
+      <span class="rf-step-sep">›</span>
+      <span class="rf-step">2 Constats</span>
+      <span class="rf-step-sep">›</span>
+      <span class="rf-step">3 NC</span>
+      <span class="rf-step-sep">›</span>
+      <span class="rf-step">4 Photos</span>
+    </div>
   </div>
 
-  <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>assignment</mat-icon>
-        Informations générales
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
+  <!-- ── Corps ───────────────────────────────────────────────────────── -->
+  <div class="rf-body">
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Visite concernée</mat-label>
-        <mat-select [(ngModel)]="visiteSelectionnee" required>
-          <mat-option *ngFor="let v of visites" [value]="v.id">
-            {{ v.tunnel?.nom }} — {{ v.typeVisite }} — {{ v.dateRealisation | date:'dd/MM/yyyy' }}
-          </mat-option>
-        </mat-select>
-        <mat-icon matPrefix>event</mat-icon>
-      </mat-form-field>
+    <!-- Contenu -->
+    <div class="rf-content">
 
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Constats -->
-  <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>description</mat-icon>
-        Constats de visite <span class="required">*</span>
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Décrivez vos observations terrain (min. 50 caractères)</mat-label>
-        <textarea matInput
-                  [(ngModel)]="constats"
-                  rows="6"
-                  placeholder="Visite réalisée le... Inspection de... Constats principaux...">
-        </textarea>
-        <mat-hint>{{ constats.length }} caractères</mat-hint>
-      </mat-form-field>
-    </mat-card-content>
-  </mat-card>
-
-  <!-- Non-conformités -->
-  <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon color="warn">warning</mat-icon>
-        Non-conformités détectées
-      </mat-card-title>
-      <div class="card-actions">
-        <button mat-button color="primary" (click)="ajouterNC()">
-          <mat-icon>add</mat-icon> Ajouter une NC
-        </button>
-      </div>
-    </mat-card-header>
-    <mat-card-content>
-
-      <div *ngIf="nonConformites.length === 0" class="no-nc">
-        <mat-icon>check_circle</mat-icon>
-        Aucune non-conformité — cliquez sur "Ajouter une NC" si nécessaire
-      </div>
-
-      <div class="nc-list">
-        <div class="nc-item" *ngFor="let nc of nonConformites; let i = index">
-          <div class="nc-header">
-            <span class="nc-number">NC {{ i + 1 }}</span>
-            <button mat-icon-button color="warn" (click)="supprimerNC(i)">
-              <mat-icon>delete</mat-icon>
-            </button>
+      <!-- Motif correction -->
+      @if (modeEdition && commentaireCorrection) {
+        <div class="rf-correction-banner">
+          <div class="rf-correction-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
           </div>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Description</mat-label>
-            <input matInput [(ngModel)]="nc.description" placeholder="Ex: Fissure longitudinale voûte tube Est">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Localisation</mat-label>
-            <input matInput [(ngModel)]="nc.localisation" placeholder="Ex: PK 1+240, côté aval">
-            <mat-icon matPrefix>location_on</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Criticité</mat-label>
-            <mat-select [(ngModel)]="nc.criticite">
-              <mat-option *ngFor="let n of niveauxCriticite" [value]="n">{{ n }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <div>
+            <div class="rf-correction-title">Motif de correction</div>
+            <div class="rf-correction-text">{{ commentaireCorrection }}</div>
+          </div>
         </div>
-      </div>
+      }
 
-    </mat-card-content>
-  </mat-card>
+      <!-- ① VISITE ────────────────────────────────────────────────── -->
+      <section class="rf-section" id="section-visite">
+        <div class="rf-section-head">
+          <div class="rf-section-num">01</div>
+          <div>
+            <h2 class="rf-section-title">Visite concernée</h2>
+            <p class="rf-section-desc">Sélectionnez la visite terrain à documenter</p>
+          </div>
+        </div>
 
-  <!-- Recommandations -->
-  <mat-card class="form-card">
-    <mat-card-header>
-      <mat-card-title>
-        <mat-icon>lightbulb</mat-icon>
-        Recommandations <span class="required">*</span>
-      </mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Actions à entreprendre</mat-label>
-        <textarea matInput
-                  [(ngModel)]="recommandations"
-                  rows="4"
-                  placeholder="Surveillance renforcée... Intervention à planifier...">
-        </textarea>
-      </mat-form-field>
-    </mat-card-content>
-  </mat-card>
+        <div class="rf-section-body">
+          @if (!modeEdition) {
+            <div class="rf-field">
+              <label class="rf-label">Visite <span class="rf-req">*</span></label>
+              <div class="rf-select-wrap">
+                <svg class="rf-field-icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+                <select [(ngModel)]="visiteSelectionnee" required>
+                  <option value="">Sélectionner une visite réalisée...</option>
+                  @for (v of visites; track v.id) {
+                    <option [value]="v.id">
+                      {{ v.tunnel?.nom }} — {{ v.typeVisite }} — {{ v.dateRealisation | date:'dd/MM/yyyy' }}
+                    </option>
+                  }
+                </select>
+              </div>
+              @if (visites.length === 0) {
+                <p class="rf-hint">Aucune visite réalisée disponible. Marquez d'abord une visite comme réalisée depuis votre tableau de bord.</p>
+              }
+            </div>
+          } @else if (rapportExistant) {
+            <div class="rf-visite-chip">
+              <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+              <div>
+                <div class="rf-visite-chip-title">{{ rapportExistant.visite?.tunnel?.nom }}</div>
+                <div class="rf-visite-chip-sub">{{ rapportExistant.visite?.typeVisite }} · {{ rapportExistant.visite?.dateRealisation | date:'dd/MM/yyyy' }}</div>
+              </div>
+              <span class="rf-lock-badge">🔒 Visite fixée</span>
+            </div>
+          }
+        </div>
+      </section>
 
-  <!-- Actions -->
-  <div class="form-actions">
-    <button mat-stroked-button (click)="annuler()">Annuler</button>
-    <button mat-stroked-button color="primary"
-            (click)="sauvegarderBrouillon()"
-            [disabled]="loading">
-      <mat-icon>save</mat-icon>
-      Sauvegarder en brouillon
-    </button>
-    <button mat-raised-button color="primary"
-            (click)="soumettre()"
-            [disabled]="loading || !visiteSelectionnee || !constats || !recommandations">
-      <mat-icon>send</mat-icon>
-      Soumettre pour validation
-    </button>
+      <!-- ② CONSTATS ─────────────────────────────────────────────── -->
+      <section class="rf-section" id="section-constats">
+        <div class="rf-section-head">
+          <div class="rf-section-num">02</div>
+          <div>
+            <h2 class="rf-section-title">Constats de visite <span class="rf-req">*</span></h2>
+            <p class="rf-section-desc">Décrivez précisément vos observations terrain</p>
+          </div>
+        </div>
+
+        <div class="rf-section-body">
+          <div class="rf-field">
+            <label class="rf-label">Observations terrain</label>
+            <textarea class="rf-textarea"
+                      [(ngModel)]="constats"
+                      rows="7"
+                      placeholder="Visite réalisée le [date]. Inspection du [secteur]...&#10;Constats principaux : état général de la structure, points d'attention identifiés...">
+            </textarea>
+            <div class="rf-char-count" [class.rf-char-ok]="constats.length >= 50">
+              {{ constats.length }} / 50 min.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ③ NON-CONFORMITÉS ─────────────────────────────────────── -->
+      <section class="rf-section" id="section-nc">
+        <div class="rf-section-head">
+          <div class="rf-section-num">03</div>
+          <div>
+            <h2 class="rf-section-title">Non-conformités</h2>
+            <p class="rf-section-desc">Anomalies et défauts constatés lors de l'inspection</p>
+          </div>
+          <button class="rf-btn-add" (click)="ajouterNC()">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            Ajouter une NC
+          </button>
+        </div>
+
+        <div class="rf-section-body">
+          @if (nonConformites.length === 0) {
+            <div class="rf-empty-state">
+              <div class="rf-empty-icon">✅</div>
+              <p>Aucune non-conformité — cliquez sur "Ajouter une NC" si nécessaire</p>
+            </div>
+          }
+
+          <div class="rf-nc-list">
+            @for (nc of nonConformites; track $index; let i = $index) {
+              <div class="rf-nc-card">
+
+                <div class="rf-nc-topbar">
+                  <div class="rf-nc-badge">NC {{ i + 1 }}</div>
+                  <!-- Criticité inline -->
+                  <div class="rf-criticite-pills">
+                    @for (n of niveauxCriticite; track n) {
+                      <button class="rf-criticite-pill"
+                              [class]="'pill-' + n.toLowerCase()"
+                              [class.selected]="nc.criticite === n"
+                              (click)="nc.criticite = n">
+                        {{ n }}
+                      </button>
+                    }
+                  </div>
+                  <button class="rf-nc-delete" (click)="supprimerNC(i)" title="Supprimer">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  </button>
+                </div>
+
+                <div class="rf-nc-fields">
+                  <div class="rf-field rf-field-grow">
+                    <label class="rf-label">Description</label>
+                    <input class="rf-input" [(ngModel)]="nc.description"
+                           placeholder="Ex: Fissure longitudinale voûte tube Est, longueur ~3m">
+                  </div>
+                  <div class="rf-field">
+                    <label class="rf-label">
+                      <svg viewBox="0 0 20 20" fill="currentColor" style="width:12px;height:12px;display:inline"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                      Localisation
+                    </label>
+                    <input class="rf-input" [(ngModel)]="nc.localisation"
+                           placeholder="Ex: PK 1+240, côté aval">
+                  </div>
+                </div>
+
+              </div>
+            }
+          </div>
+        </div>
+      </section>
+
+      <!-- ④ RECOMMANDATIONS ───────────────────────────────────────── -->
+      <section class="rf-section" id="section-reco">
+        <div class="rf-section-head">
+          <div class="rf-section-num">04</div>
+          <div>
+            <h2 class="rf-section-title">Recommandations <span class="rf-req">*</span></h2>
+            <p class="rf-section-desc">Actions à entreprendre suite aux constats</p>
+          </div>
+        </div>
+
+        <div class="rf-section-body">
+          <div class="rf-field">
+            <label class="rf-label">Actions préconisées</label>
+            <textarea class="rf-textarea"
+                      [(ngModel)]="recommandations"
+                      rows="5"
+                      placeholder="Surveillance renforcée à [fréquence]...&#10;Intervention à planifier avant [date]...&#10;Expertises complémentaires requises...">
+            </textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- ⑤ PHOTOS ─────────────────────────────────────────────────── -->
+      <section class="rf-section" id="section-photos">
+        <div class="rf-section-head">
+          <div class="rf-section-num">05</div>
+          <div>
+            <h2 class="rf-section-title">
+              Photos terrain
+              <span class="rf-req">*</span>
+              <span class="rf-rule-tag">RG-RAP-05</span>
+            </h2>
+            <p class="rf-section-desc">Au moins une photo avec localisation requise avant soumission</p>
+          </div>
+        </div>
+
+        <div class="rf-section-body">
+
+          <!-- Zone d'ajout -->
+          <label class="rf-drop-zone">
+            <input type="file" accept="image/*" (change)="ajouterPhoto($event)" style="display:none">
+            <div class="rf-drop-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+            </div>
+            <div class="rf-drop-text">Cliquez pour ajouter une photo</div>
+            <div class="rf-drop-hint">JPG, PNG — métadonnées obligatoires (localisation, zone, date)</div>
+          </label>
+
+          <!-- Galerie -->
+          @if (photos.length > 0) {
+            <div class="rf-photo-grid">
+              @for (photo of photos; track $index; let i = $index) {
+                <div class="rf-photo-card">
+                  <div class="rf-photo-img-wrap">
+                    <img [src]="photo.preview" [alt]="photo.nom" class="rf-photo-img">
+                    <button class="rf-photo-del" (click)="supprimerPhoto(i)" title="Supprimer">
+                      <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+                    </button>
+                  </div>
+                  <div class="rf-photo-meta">
+                    <div class="rf-field">
+                      <label class="rf-label">Localisation</label>
+                      <input class="rf-input rf-input-sm"
+                             [(ngModel)]="photo.localisation"
+                             placeholder="PK 1+240, voûte tube Est">
+                    </div>
+                    <div class="rf-field-row">
+                      <div class="rf-field rf-field-grow">
+                        <label class="rf-label">Zone</label>
+                        <div class="rf-select-wrap rf-select-sm">
+                          <select [(ngModel)]="photo.typeZone">
+                            <option value="">Sélectionner...</option>
+                            @for (zone of typesZone; track zone) {
+                              <option [value]="zone">{{ zone }}</option>
+                            }
+                          </select>
+                        </div>
+                      </div>
+                      <div class="rf-field">
+                        <label class="rf-label">Date</label>
+                        <input class="rf-input rf-input-sm" type="date" [(ngModel)]="photo.datePrise">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+        </div>
+      </section>
+
+    </div><!-- /rf-content -->
+  </div><!-- /rf-body -->
+
+  <!-- ── Barre d'actions sticky ─────────────────────────────────────── -->
+  <div class="rf-actions-bar">
+    <button class="rf-btn rf-btn-ghost" (click)="annuler()">Annuler</button>
+    <div class="rf-actions-right">
+      <button class="rf-btn rf-btn-secondary"
+              (click)="sauvegarderBrouillon()"
+              [disabled]="loading">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293z"/></svg>
+        Brouillon
+      </button>
+      <button class="rf-btn rf-btn-primary"
+              (click)="soumettre()"
+              [disabled]="loading || !constats || !recommandations">
+        @if (loading) {
+          <span class="rf-spinner"></span> Envoi...
+        } @else {
+          <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/></svg>
+          Soumettre pour validation
+        }
+      </button>
+    </div>
   </div>
 
 </div>

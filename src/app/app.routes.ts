@@ -29,6 +29,7 @@ export const routes: Routes = [
   // Rapports — accessibles à tous les rôles authentifiés
   { path: 'rapports', component: RapportList, canActivate: [authGuard] },
   { path: 'rapports/nouveau', component: RapportForm, canActivate: [ingenieurGuard] },
+  { path: 'rapports/:id/modifier', component: RapportForm, canActivate: [ingenieurGuard] },
   { path: 'rapports/:id', component: RapportDetail, canActivate: [authGuard] },
 
   { path: '**', redirectTo: 'login' }

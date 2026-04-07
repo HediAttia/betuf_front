@@ -50,48 +50,110 @@
     </div>
   </div>
 
-  <!-- Mes visites -->
+  <!-- Mes visites + panneau historique NC -->
   <div class="section-card">
     <div class="section-title">📅 Mes visites assignées</div>
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Tunnel</th>
-          <th>Type</th>
-          <th>Date prévue</th>
-          <th>Statut</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (v of mesVisites; track v) {
-          <tr>
-            <td>
-              <div class="tunnel-name">{{ v.tunnel?.nom }}</div>
-              <div class="tunnel-loc">{{ v.tunnel?.localisation }}</div>
-            </td>
-            <td>{{ v.typeVisite }}</td>
-            <td>{{ v.datePrevisionnelle | date:'dd/MM/yyyy' }}</td>
-            <td>
-              <span class="badge" [ngClass]="v.statut.toLowerCase()">
-                {{ v.statut === 'PLANIFIEE' ? 'Planifiée' : v.statut === 'REALISEE' ? 'Réalisée' : v.statut }}
-              </span>
-            </td>
-            <td>
-              @if (v.statut === 'PLANIFIEE') {
-                <button class="btn btn-accent btn-sm" (click)="marquerRealisee(v.id)">✓ Marquer réalisée</button>
+
+    <div class="visites-layout" [class.historique-ouvert]="visiteHistorique">
+
+      <!-- Tableau visites -->
+      <div class="visites-table-col">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Tunnel</th>
+              <th>Type</th>
+              <th>Date prévue</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (v of mesVisites; track v) {
+              <tr [class.row-selected]="visiteHistorique?.id === v.id">
+                <td>
+                  <div class="tunnel-name">{{ getTunnelNomVisite(v) }}</div>
+                  <div class="tunnel-loc">{{ getTunnelLocVisite(v) }}</div>
+                </td>
+                <td>{{ v.typeVisite }}</td>
+                <td>{{ v.datePrevisionnelle | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <span class="badge" [ngClass]="v.statut.toLowerCase()">
+                    {{ v.statut === 'PLANIFIEE' ? 'Planifiée' : v.statut === 'REALISEE' ? 'Réalisée' : v.statut }}
+                  </span>
+                </td>
+                <td class="td-actions">
+                  @if (v.statut === 'PLANIFIEE') {
+                    <button class="btn btn-accent btn-sm" (click)="marquerRealisee(v.id)">✓ Réalisée</button>
+                  }
+                  @if (v.statut === 'REALISEE') {
+                    <button class="btn btn-ghost btn-sm" routerLink="/rapports/nouveau">📄 Rapport</button>
+                  }
+                  <button class="btn btn-ghost btn-sm historique-btn"
+                          [class.active]="visiteHistorique?.id === v.id"
+                          (click)="voirHistoriqueNC(v)"
+                          title="Historique des non-conformités du tunnel">
+                    🔍 Historique NC
+                  </button>
+                </td>
+              </tr>
+            }
+            @if (mesVisites.length === 0) {
+              <tr class="empty-row"><td colspan="5">Aucune visite assignée</td></tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Panneau historique NC -->
+      @if (visiteHistorique) {
+        <div class="historique-panel">
+          <div class="hp-header">
+            <div>
+              <div class="hp-eyebrow">Historique terrain</div>
+              <h3 class="hp-title">{{ getTunnelNomVisite(visiteHistorique) }}</h3>
+              <div class="hp-sub">Non-conformités des visites précédentes validées</div>
+            </div>
+            <button class="hp-close" (click)="fermerHistorique()">✕</button>
+          </div>
+
+          @if (chargementHistorique) {
+            <div class="hp-loading">Chargement...</div>
+          } @else if (historiquesNC.length === 0) {
+            <div class="hp-empty">
+              <span>✅</span>
+              <p>Aucune non-conformité enregistrée sur ce tunnel dans les rapports validés.</p>
+            </div>
+          } @else {
+            <div class="hp-body">
+              @for (item of historiquesNC; track item.rapport.id) {
+                <div class="hp-rapport">
+                  <div class="hp-rapport-header">
+                    <span class="hp-version">v{{ item.rapport.version }}</span>
+                    <span class="hp-date">{{ item.rapport.dateValidation | date:'dd/MM/yyyy' }}</span>
+                    <span class="hp-auteur">{{ item.rapport.auteur?.prenom }} {{ item.rapport.auteur?.nom }}</span>
+                  </div>
+                  <div class="hp-nc-list">
+                    @for (nc of item.ncs; track $index) {
+                      <div class="hp-nc-item">
+                        <span class="hp-nc-badge" [ngClass]="getCriticiteClass(nc.criticite)">
+                          {{ nc.criticite }}
+                        </span>
+                        <div class="hp-nc-content">
+                          <div class="hp-nc-desc">{{ nc.description }}</div>
+                          <div class="hp-nc-loc">📍 {{ nc.localisation }}</div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
               }
-              @if (v.statut === 'REALISEE') {
-                <button class="btn btn-ghost btn-sm" routerLink="/rapports">📄 Voir rapports</button>
-              }
-            </td>
-          </tr>
-        }
-        @if (mesVisites.length === 0) {
-          <tr class="empty-row"><td colspan="5">Aucune visite assignée</td></tr>
-        }
-      </tbody>
-    </table>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
   </div>
 
   <!-- Mes rapports -->
@@ -110,7 +172,7 @@
       <tbody>
         @for (r of mesRapports; track r) {
           <tr>
-            <td class="tunnel-name">{{ r.visite?.tunnel?.nom }}</td>
+            <td class="tunnel-name">{{ getTunnelNomRapport(r) }}</td>
             <td>
               <span class="badge" [ngClass]="r.statut.toLowerCase()">
                 {{ r.statut === 'VALIDE' ? 'Validé' : r.statut === 'SOUMIS' ? 'Soumis' : r.statut === 'A_CORRIGER' ? 'À corriger' : 'Brouillon' }}
@@ -119,7 +181,11 @@
             <td>v{{ r.version }}</td>
             <td>{{ r.dateSoumission ? (r.dateSoumission | date:'dd/MM/yyyy') : '—' }}</td>
             <td>
-              <a class="btn btn-ghost btn-sm" [routerLink]="['/rapports', r.id]">👁 Consulter</a>
+              @if (r.statut === 'BROUILLON' || r.statut === 'A_CORRIGER') {
+                <a class="btn btn-accent btn-sm" [routerLink]="['/rapports', r.id, 'modifier']">✏️ Modifier</a>
+              } @else {
+                <a class="btn btn-ghost btn-sm" [routerLink]="['/rapports', r.id]">👁 Consulter</a>
+              }
             </td>
           </tr>
         }

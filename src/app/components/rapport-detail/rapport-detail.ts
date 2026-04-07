@@ -8,7 +8,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RapportService, Rapport } from '../../services/rapport';
+import { AuthService } from '../../services/auth';
+import { CorrectionDialog } from '../correction-dialog/correction-dialog';
 
 @Component({
   selector: 'app-rapport-detail',
@@ -22,7 +25,8 @@ import { RapportService, Rapport } from '../../services/rapport';
     MatButtonModule,
     MatDividerModule,
     MatTooltipModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatDialogModule
   ],
   templateUrl: './rapport-detail.html',
   styleUrl: './rapport-detail.scss'
@@ -32,15 +36,42 @@ export class RapportDetail implements OnInit {
   rapport: Rapport | null = null;
   nonConformites: any[] = [];
 
-  // IDs de démo
-  dupont_id = 'b1000000-0000-0000-0000-000000000001';
-
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private rapportService: RapportService,
-    private snackBar: MatSnackBar
+    private authService: AuthService,
+    private snackBar: MatSnackBar,
+    private dialog: MatDialog
   ) {}
+
+  get role(): string {
+    return this.authService.getRole() || '';
+  }
+
+  get estIngenieur(): boolean {
+    return this.role === 'INGENIEUR';
+  }
+
+  get estExploitant(): boolean {
+    return this.role === 'EXPLOITANT';
+  }
+
+  get estChargeMission(): boolean {
+    return this.role === 'CHARGE_MISSION';
+  }
+
+  peutModifier(): boolean {
+    return this.estIngenieur &&
+      !!this.rapport &&
+      (this.rapport.statut === 'BROUILLON' || this.rapport.statut === 'A_CORRIGER');
+  }
+
+  modifierRapport(): void {
+    if (this.rapport) {
+      this.router.navigate(['/rapports', this.rapport.id, 'modifier']);
+    }
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -51,6 +82,11 @@ export class RapportDetail implements OnInit {
 
   charger(id: string): void {
     this.rapportService.getById(id).subscribe((data: Rapport) => {
+      // RG-DIFF-01 : l'exploitant ne peut accéder qu'aux rapports VALIDÉS
+      if (this.estExploitant && data.statut !== 'VALIDE') {
+        this.router.navigate(['/rapports']);
+        return;
+      }
       this.rapport = data;
       if (data.nonConformites) {
         try {
@@ -64,12 +100,13 @@ export class RapportDetail implements OnInit {
 
   valider(): void {
     if (!this.rapport) return;
-    this.rapportService.valider(this.rapport.id, this.dupont_id).subscribe({
+    const userId = this.authService.getUserId() || '';
+    this.rapportService.valider(this.rapport.id, userId).subscribe({
       next: () => {
         this.snackBar.open('Rapport validé avec succès !', 'Fermer', { duration: 3000, panelClass: 'snack-success' });
         this.charger(this.rapport!.id);
       },
-      error: (err) => {
+      error: () => {
         this.snackBar.open('Validation refusée — RG-VAL-03', 'Fermer', { duration: 4000, panelClass: 'snack-error' });
       }
     });
@@ -77,18 +114,18 @@ export class RapportDetail implements OnInit {
 
   corriger(): void {
     if (!this.rapport) return;
-    const commentaire = prompt('Commentaire de correction (obligatoire) :');
-    if (commentaire && commentaire.length >= 20) {
-      this.rapportService.corriger(this.rapport.id, commentaire).subscribe({
-        next: () => {
-          this.snackBar.open('Rapport retourné pour correction.', 'Fermer', { duration: 3000 });
-          this.charger(this.rapport!.id);
-        },
-        error: (err) => console.error(err)
-      });
-    } else if (commentaire) {
-      this.snackBar.open('Commentaire trop court — 20 caractères minimum.', 'Fermer', { duration: 3000 });
-    }
+    const ref = this.dialog.open(CorrectionDialog, { width: '520px', panelClass: 'custom-dialog' });
+    ref.afterClosed().subscribe((commentaire: string | null) => {
+      if (commentaire) {
+        this.rapportService.corriger(this.rapport!.id, commentaire).subscribe({
+          next: () => {
+            this.snackBar.open('Rapport retourné pour correction.', 'Fermer', { duration: 3000 });
+            this.charger(this.rapport!.id);
+          },
+          error: (err) => console.error(err)
+        });
+      }
+    });
   }
 
   retour(): void {

@@ -10,7 +10,16 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDividerModule } from '@angular/material/divider';
 import { VisiteService, Visite } from '../../services/visite';
 import { RapportService, Rapport } from '../../services/rapport';
+import { TunnelService, Tunnel } from '../../services/tunnel';
 import { AuthService } from '../../services/auth';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+
+interface NonConformite {
+  description: string;
+  localisation: string;
+  criticite: string;
+}
 
 @Component({
   selector: 'app-dashboard-ingenieur',
@@ -38,6 +47,14 @@ export class DashboardIngenieur implements OnInit {
   rapportsValides: number = 0;
   userId: string = '';
   nomComplet: string = '';
+  tunnels: Tunnel[] = [];
+
+  // Historique NC par tunnel
+  visiteHistorique: Visite | null = null;
+  historiquesNC: { rapport: Rapport; ncs: NonConformite[] }[] = [];
+  chargementHistorique: boolean = false;
+  // Tous les rapports validés (pour l'historique NC des tunnels)
+  tousRapportsValides: Rapport[] = [];
 
   colonnesVisites = ['tunnel', 'typeVisite', 'datePrevisionnelle', 'statut', 'actions'];
   colonnesRapports = ['tunnel', 'statut', 'version', 'dateSoumission', 'actions'];
@@ -45,6 +62,7 @@ export class DashboardIngenieur implements OnInit {
   constructor(
     private visiteService: VisiteService,
     private rapportService: RapportService,
+    private tunnelService: TunnelService,
     private authService: AuthService
   ) {}
 
@@ -55,18 +73,101 @@ export class DashboardIngenieur implements OnInit {
   }
 
   charger(): void {
-    this.visiteService.getVisitesByIntervenant(this.userId).subscribe((data: Visite[]) => {
-      this.mesVisites = data;
-    });
-
-    this.rapportService.getByAuteur(this.userId).subscribe((data: Rapport[]) => {
-      this.mesRapports = data;
-      this.rapportsACorrection = data.filter((r: Rapport) => r.statut === 'A_CORRIGER');
-      this.rapportsBrouillon = data.filter((r: Rapport) => r.statut === 'BROUILLON').length;
-      this.rapportsValides = data.filter((r: Rapport) => r.statut === 'VALIDE').length;
+    forkJoin({
+      tunnels: this.tunnelService.getActifs().pipe(catchError(() => of([]))),
+      visites: this.visiteService.getVisitesByIntervenant(this.userId).pipe(catchError(() => of([]))),
+      rapports: this.rapportService.getByAuteur(this.userId).pipe(catchError(() => of([]))),
+      tousValides: this.rapportService.getByStatut('VALIDE').pipe(catchError(() => of([])))
+    }).subscribe(({ tunnels, visites, rapports, tousValides }) => {
+      this.tunnels = tunnels;
+      this.mesVisites = visites;
+      this.mesRapports = rapports;
+      this.rapportsACorrection = rapports.filter((r: Rapport) => r.statut === 'A_CORRIGER');
+      this.rapportsBrouillon = rapports.filter((r: Rapport) => r.statut === 'BROUILLON').length;
+      this.rapportsValides = rapports.filter((r: Rapport) => r.statut === 'VALIDE').length;
+      this.tousRapportsValides = tousValides;
     });
   }
 
+  // Résolution du nom de tunnel (comme dans dashboard.ts)
+  // L'API peut renvoyer tunnel = objet complet, partiel ou juste un ID
+  private resoudreTunnel(tunnelField: any): Tunnel | null {
+    if (tunnelField?.nom) return tunnelField;
+    const id = tunnelField?.id ?? tunnelField ?? null;
+    if (id && typeof id === 'string') return this.tunnels.find(t => t.id === id) ?? null;
+    return null;
+  }
+
+  getTunnelNomVisite(v: Visite): string {
+    const t = this.resoudreTunnel(v.tunnel ?? (v as any).tunnelId);
+    return t?.nom || (v as any).tunnelNom || '—';
+  }
+
+  getTunnelLocVisite(v: Visite): string {
+    const t = this.resoudreTunnel(v.tunnel ?? (v as any).tunnelId);
+    return t?.localisation || '';
+  }
+
+  getTunnelNomRapport(r: Rapport): string {
+    // Essai 1 : tunnel imbriqué dans visite
+    const t = this.resoudreTunnel(r.visite?.tunnel ?? (r.visite as any)?.tunnelId);
+    if (t?.nom) return t.nom;
+    // Essai 2 : champs plats sur visite
+    return (r.visite as any)?.tunnelNom || '—';
+  }
+
+  // ── Historique NC du tunnel ──────────────────────────────────────────
+  voirHistoriqueNC(visite: Visite): void {
+    if (this.visiteHistorique?.id === visite.id) {
+      this.visiteHistorique = null;
+      this.historiquesNC = [];
+      return;
+    }
+
+    this.visiteHistorique = visite;
+    this.chargementHistorique = true;
+
+    const tunnelId = visite.tunnel?.id;
+    if (!tunnelId) {
+      this.historiquesNC = [];
+      this.chargementHistorique = false;
+      return;
+    }
+
+    // Filtrer les rapports validés pour ce tunnel
+    const rapportsTunnel = this.tousRapportsValides.filter(
+      (r: Rapport) => r.visite?.tunnel?.id === tunnelId
+    );
+
+    this.historiquesNC = rapportsTunnel
+      .map((r: Rapport) => {
+        let ncs: NonConformite[] = [];
+        if (r.nonConformites) {
+          try { ncs = JSON.parse(r.nonConformites); } catch { ncs = []; }
+        }
+        return { rapport: r, ncs };
+      })
+      .filter(item => item.ncs.length > 0);
+
+    this.chargementHistorique = false;
+  }
+
+  fermerHistorique(): void {
+    this.visiteHistorique = null;
+    this.historiquesNC = [];
+  }
+
+  getCriticiteClass(criticite: string): string {
+    switch (criticite) {
+      case 'CRITIQUE': return 'nc-critique';
+      case 'ELEVEE':   return 'nc-elevee';
+      case 'MODEREE':  return 'nc-moderee';
+      case 'FAIBLE':   return 'nc-faible';
+      default: return '';
+    }
+  }
+
+  // ── Statuts ──────────────────────────────────────────────────────────
   getStatutVisiteColor(statut: string): string {
     switch(statut) {
       case 'PLANIFIEE': return 'primary';

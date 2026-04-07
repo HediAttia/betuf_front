@@ -177,7 +177,18 @@ export class DashboardComponent implements OnInit {
   // ── Planifier ─────────────────────────────────
 
   planifierVisite(): void {
-    const dialogRef = this.dialog.open(VisiteForm, { width: '660px', panelClass: 'custom-dialog' });
+    const dialogRef = this.dialog.open(VisiteForm, { width: '660px', panelClass: 'custom-dialog', data: {} });
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) this.ngOnInit();
+    });
+  }
+
+  planifierDepuisAlerte(alerte: any): void {
+    const dialogRef = this.dialog.open(VisiteForm, {
+      width: '660px',
+      panelClass: 'custom-dialog',
+      data: { tunnelId: alerte.tunnelId, tunnelNom: alerte.tunnelNom }
+    });
     dialogRef.afterClosed().subscribe((result: boolean) => {
       if (result) this.ngOnInit();
     });

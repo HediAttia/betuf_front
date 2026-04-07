@@ -24,6 +24,12 @@
   <!-- Corps -->
   <div class="vf-body">
 
+    @if (tunnelPreRempliNom) {
+      <div class="alerte-prefill-banner">
+        ⚡ Planification depuis alerte réglementaire — tunnel pré-rempli
+      </div>
+    }
+
     <div class="vf-field full">
       <label>Tunnel <span class="req">*</span></label>
       <div class="select-wrapper">

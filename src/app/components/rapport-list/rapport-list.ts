@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { RapportService, Rapport } from '../../services/rapport';
+import { AuthService } from '../../services/auth';
 import { Router } from '@angular/router';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CorrectionDialog } from '../correction-dialog/correction-dialog';
 
 @Component({
   selector: 'app-rapport-list',
@@ -11,7 +14,8 @@ import { Router } from '@angular/router';
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule
+    RouterModule,
+    MatDialogModule
   ],
   templateUrl: './rapport-list.html',
   styleUrl: './rapport-list.scss'
@@ -24,19 +28,38 @@ export class RapportList implements OnInit {
   filtreStatut: string = '';
   rapportSelectionne: Rapport | null = null;
 
-  dupont_id = 'b1000000-0000-0000-0000-000000000001';
-
   constructor(
     private rapportService: RapportService,
-    private router: Router
+    private authService: AuthService,
+    private router: Router,
+    private dialog: MatDialog
   ) {}
+
+  get role(): string {
+    return this.authService.getRole() || '';
+  }
+
+  get userId(): string {
+    return this.authService.getUserId() || '';
+  }
 
   ngOnInit(): void {
     this.charger();
   }
 
   charger(): void {
-    this.rapportService.getAll().subscribe((data: Rapport[]) => {
+    // RG-DIFF-01 : l'exploitant ne voit que les rapports VALIDÉS
+    // L'ingénieur ne voit que ses propres rapports
+    let obs;
+    if (this.role === 'INGENIEUR') {
+      obs = this.rapportService.getByAuteur(this.userId);
+    } else if (this.role === 'EXPLOITANT') {
+      obs = this.rapportService.getByStatut('VALIDE');
+    } else {
+      obs = this.rapportService.getAll();
+    }
+
+    obs.subscribe((data: Rapport[]) => {
       this.rapports = data;
       this.appliquerFiltres();
     });
@@ -72,38 +95,49 @@ export class RapportList implements OnInit {
   }
 
   valider(rapport: Rapport): void {
-    this.rapportService.valider(rapport.id, this.dupont_id).subscribe({
+    this.rapportService.valider(rapport.id, this.userId).subscribe({
       next: () => {
         this.charger();
         this.rapportSelectionne = null;
       },
-      error: (err) => alert('Validation refusée : ' + err.error)
+      error: () => {}
     });
   }
 
   corriger(rapport: Rapport): void {
-    const commentaire = prompt('Commentaire de correction obligatoire :');
-    if (commentaire) {
-      this.rapportService.corriger(rapport.id, commentaire).subscribe({
-        next: () => {
-          this.charger();
-          this.rapportSelectionne = null;
-        },
-        error: (err) => console.error(err)
-      });
-    }
+    const ref = this.dialog.open(CorrectionDialog, { width: '520px', panelClass: 'custom-dialog' });
+    ref.afterClosed().subscribe((commentaire: string | null) => {
+      if (commentaire) {
+        this.rapportService.corriger(rapport.id, commentaire).subscribe({
+          next: () => {
+            this.charger();
+            this.rapportSelectionne = null;
+          },
+          error: (err) => console.error(err)
+        });
+      }
+    });
   }
 
   peutValider(rapport: Rapport): boolean {
-    return rapport.statut === 'SOUMIS';
+    return rapport.statut === 'SOUMIS' && this.role === 'CHARGE_MISSION';
   }
 
   peutCorrection(rapport: Rapport): boolean {
-    return rapport.statut === 'SOUMIS';
+    return rapport.statut === 'SOUMIS' && this.role === 'CHARGE_MISSION';
+  }
+
+  peutModifier(rapport: Rapport): boolean {
+    return this.role === 'INGENIEUR' &&
+      (rapport.statut === 'BROUILLON' || rapport.statut === 'A_CORRIGER');
   }
 
   ouvrirDetail(rapport: Rapport): void {
-    this.router.navigate(['/rapports', rapport.id]);
+    if (this.peutModifier(rapport)) {
+      this.router.navigate(['/rapports', rapport.id, 'modifier']);
+    } else {
+      this.router.navigate(['/rapports', rapport.id]);
+    }
   }
 
   getStatutClass(statut: string): string {

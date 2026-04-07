@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -50,8 +50,11 @@ export class VisiteForm implements OnInit {
   ingenieurVisites: Visite[] = [];
   loading = false;
 
+  tunnelPreRempliNom: string = '';
+
   constructor(
     private dialogRef: MatDialogRef<VisiteForm>,
+    @Inject(MAT_DIALOG_DATA) private dialogData: { tunnelId?: string; tunnelNom?: string },
     private tunnelService: TunnelService,
     private utilisateurService: UtilisateurService,
     private visiteService: VisiteService,
@@ -60,6 +63,13 @@ export class VisiteForm implements OnInit {
 
   ngOnInit(): void {
     this.chargeMissionId = this.authService.getUserId() || '';
+
+    // Pré-remplissage depuis alerte
+    if (this.dialogData?.tunnelId) {
+      this.visite.tunnelId = this.dialogData.tunnelId;
+      this.tunnelPreRempliNom = this.dialogData.tunnelNom || '';
+    }
+
     this.tunnelService.getActifs().subscribe((data: Tunnel[]) => this.tunnels = data);
     this.utilisateurService.getByRole('INGENIEUR').subscribe((data: Utilisateur[]) => {
       this.ingenieurs = data;
