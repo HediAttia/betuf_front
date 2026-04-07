@@ -64,7 +64,7 @@ export class VisiteService {
   }
 
   annuler(id: string, motif: string): Observable<Visite> {
-    return this.http.patch<Visite>(`${this.apiUrl}/${id}/annuler`, { motif });
+    return this.http.patch<Visite>(`${this.apiUrl}/${id}/annuler?motif=${encodeURIComponent(motif)}`, {});
   }
 
   commenterVisite(id: string, commentaire: string, exploitantId: string): Observable<any> {
