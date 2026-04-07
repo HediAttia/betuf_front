@@ -88,7 +88,11 @@ export class DashboardComponent implements OnInit {
         this.visites = visites;
         this.visitesPlannifiees = visites.filter((v: Visite) => v.statut === 'PLANIFIEE');
         this.visitesRealisees   = visites.filter((v: Visite) => v.statut === 'REALISEE');
-        this.alertes = alertes;
+        // Retirer les alertes des tunnels qui ont déjà une visite planifiée
+        const tunnelsDejaPlannifies = new Set(
+          this.visitesPlannifiees.map(v => v.tunnel?.id ?? (v as any).tunnelId)
+        );
+        this.alertes = (alertes as Alerte[]).filter(a => !tunnelsDejaPlannifies.has(a.tunnelId));
         this.buildCalendar();
       }
     });
