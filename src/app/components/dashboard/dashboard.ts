@@ -136,7 +136,10 @@ export class DashboardComponent implements OnInit {
   }
 
   private toDateStr(d: Date): string {
-    return d.toISOString().split('T')[0];
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const j = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${j}`;
   }
 
   moisPrecedent(): void {
