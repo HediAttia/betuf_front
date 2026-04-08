@@ -67,17 +67,28 @@ export class TunnelDetail implements OnInit {
   charger(tunnelId: string): void {
     this.loading = true;
     forkJoin({
-      tunnel: this.tunnelService.getById(tunnelId),
-      visites: this.visiteService.getByTunnel(tunnelId).pipe(catchError(() => of([]))),
+      tunnel:   this.tunnelService.getById(tunnelId),
+      visites:  this.visiteService.getByTunnel(tunnelId).pipe(catchError(() => of([]))),
       rapports: this.rapportService.getAll().pipe(catchError(() => of([])))
     }).subscribe({
       next: ({ tunnel, visites, rapports }) => {
-        this.tunnel = tunnel;
+        this.tunnel  = tunnel;
         this.visites = (visites as Visite[]).sort((a, b) =>
-          new Date(b.datePrevisionnelle).getTime() - new Date(a.datePrevisionnelle).getTime()
+          new Date(b.datePrevisionnelle ?? 0).getTime() - new Date(a.datePrevisionnelle ?? 0).getTime()
         );
-        const visiteIds = this.visites.map(v => v.id);
-        this.rapports = (rapports as Rapport[]).filter(r => visiteIds.includes(r.visite?.id));
+
+        const visiteIds = new Set(this.visites.map(v => v.id));
+        const allRapports = rapports as Rapport[];
+
+        // Filtre multicouche : visite.id, visite.tunnel.id, ou visite.tunnelId
+        this.rapports = allRapports.filter(r => {
+          // Cas 1 : la visite du rapport matche une visite du tunnel
+          if (r.visite?.id && visiteIds.has(r.visite.id)) return true;
+          // Cas 2 : le tunnel de la visite du rapport = ce tunnel
+          const tid = r.visite?.tunnel?.id ?? r.visite?.tunnelId ?? null;
+          return tid === tunnelId;
+        });
+
         this.loading = false;
       },
       error: () => {
