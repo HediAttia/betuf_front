@@ -63,7 +63,7 @@ export class RapportService {
   }
 
   corriger(id: string, commentaire: string): Observable<Rapport> {
-    return this.http.patch<Rapport>(`${this.apiUrl}/${id}/corriger`, { commentaire });
+    return this.http.patch<Rapport>(`${this.apiUrl}/${id}/retourner`, { commentaire });
   }
 
   modifier(id: string, body: any): Observable<Rapport> {
