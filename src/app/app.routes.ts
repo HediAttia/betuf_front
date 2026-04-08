@@ -21,7 +21,7 @@ export const routes: Routes = [
   // Chargé de mission uniquement
   { path: 'dashboard', component: DashboardComponent, canActivate: [chargeMissionGuard] },
   { path: 'tunnels', component: TunnelList, canActivate: [chargeMissionGuard] },
-  { path: 'tunnels/:id', component: TunnelDetail, canActivate: [chargeMissionGuard] },
+  { path: 'tunnels/:id', component: TunnelDetail, canActivate: [authGuard] },
 
   // Ingénieur uniquement
   { path: 'dashboard-ingenieur', component: DashboardIngenieur, canActivate: [ingenieurGuard] },
