@@ -73,7 +73,7 @@
                   <option value="">Sélectionner une visite réalisée...</option>
                   @for (v of visites; track v.id) {
                     <option [value]="v.id">
-                      {{ v.tunnel?.nom }} — {{ v.typeVisite }} — {{ v.dateRealisation | date:'dd/MM/yyyy' }}
+                      {{ v.tunnel?.nom || $any(v).tunnelNom || 'Tunnel ?' }} — {{ v.typeVisite }} — {{ v.dateRealisation | date:'dd/MM/yyyy' }}
                     </option>
                   }
                 </select>

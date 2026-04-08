@@ -7,7 +7,7 @@
         <mat-icon>arrow_back</mat-icon> Retour aux rapports
       </button>
       <div class="header-content">
-        <h1>Rapport de visite — {{ rapport.visite?.tunnel?.nom }}</h1>
+        <h1>Rapport de visite — {{ getTunnelNom() }}</h1>
         <p class="subtitle">
           {{ rapport.visite?.typeVisite }} — {{ rapport.visite?.dateRealisation | date:'dd/MM/yyyy' }}
         </p>
@@ -147,11 +147,11 @@
           <div class="info-grid">
             <div class="info-item">
               <span class="label">Tunnel</span>
-              <span class="value">{{ rapport.visite?.tunnel?.nom }}</span>
+              <span class="value">{{ getTunnelNom() }}</span>
             </div>
             <div class="info-item">
               <span class="label">Localisation</span>
-              <span class="value">{{ rapport.visite?.tunnel?.localisation }}</span>
+              <span class="value">{{ getTunnelLoc() }}</span>
             </div>
             <div class="info-item">
               <span class="label">Type de visite</span>

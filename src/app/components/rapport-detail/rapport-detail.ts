@@ -10,6 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RapportService, Rapport } from '../../services/rapport';
+import { TunnelService, Tunnel } from '../../services/tunnel';
 import { AuthService } from '../../services/auth';
 import { CorrectionDialog } from '../correction-dialog/correction-dialog';
 import { HistoriquePanel } from '../historique-panel/historique-panel';
@@ -37,11 +38,13 @@ export class RapportDetail implements OnInit {
 
   rapport: Rapport | null = null;
   nonConformites: any[] = [];
+  tunnelResolu: Tunnel | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private rapportService: RapportService,
+    private tunnelService: TunnelService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
@@ -97,7 +100,25 @@ export class RapportDetail implements OnInit {
           this.nonConformites = [];
         }
       }
+      // Résoudre le tunnel si l'objet visite ne l'embeds pas complètement
+      const tunnelField = data.visite?.tunnel ?? (data.visite as any)?.tunnelId;
+      if (tunnelField?.nom) {
+        this.tunnelResolu = tunnelField;
+      } else {
+        const tunnelId = tunnelField?.id ?? tunnelField ?? null;
+        if (tunnelId && typeof tunnelId === 'string') {
+          this.tunnelService.getById(tunnelId).subscribe(t => this.tunnelResolu = t);
+        }
+      }
     });
+  }
+
+  getTunnelNom(): string {
+    return this.tunnelResolu?.nom || this.rapport?.visite?.tunnel?.nom || (this.rapport?.visite as any)?.tunnelNom || '—';
+  }
+
+  getTunnelLoc(): string {
+    return this.tunnelResolu?.localisation || this.rapport?.visite?.tunnel?.localisation || (this.rapport?.visite as any)?.tunnelLocalisation || '—';
   }
 
   valider(): void {
