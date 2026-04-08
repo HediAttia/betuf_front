@@ -43,4 +43,16 @@ export class NotificationService {
   marquerToutesLues(userId: string): Observable<void> {
     return this.http.patch<void>(`${this.apiUrl}/utilisateur/${userId}/tout-lire`, {});
   }
+
+  creer(payload: {
+    destinataireId: string;
+    auteurId?: string;
+    typeNotification: string;
+    titre: string;
+    contenu: string;
+    entiteType: string;
+    entiteId: string;
+  }): Observable<Notification> {
+    return this.http.post<Notification>(this.apiUrl, payload);
+  }
 }

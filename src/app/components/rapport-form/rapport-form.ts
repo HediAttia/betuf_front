@@ -13,6 +13,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { VisiteService, Visite } from '../../services/visite';
 import { RapportService, Rapport } from '../../services/rapport';
 import { AuthService } from '../../services/auth';
+import { NotificationService } from '../../services/notification';
 
 interface NonConformite {
   description: string;
@@ -81,7 +82,8 @@ export class RapportForm implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -239,6 +241,7 @@ export class RapportForm implements OnInit, OnDestroy {
       if (soumettre) {
         this.rapportService.soumettre(idBrouillon).subscribe({
           next: () => {
+            this.notifierSoumission(idBrouillon);
             this.loading = false;
             this.snackBar.open('Rapport soumis pour validation !', 'Fermer', { duration: 3000 });
             this.router.navigate(['/rapports']);
@@ -258,6 +261,7 @@ export class RapportForm implements OnInit, OnDestroy {
         if (soumettre) {
           this.rapportService.soumettre(rapport.id).subscribe({
             next: () => {
+              this.notifierSoumission(rapport.id);
               this.loading = false;
               this.snackBar.open('Rapport soumis pour validation !', 'Fermer', { duration: 3000 });
               this.router.navigate(['/rapports']);
@@ -301,6 +305,7 @@ export class RapportForm implements OnInit, OnDestroy {
         if (soumettre) {
           this.rapportService.soumettre(rapport.id).subscribe({
             next: () => {
+              this.notifierSoumission(rapport.id);
               this.loading = false;
               this.snackBar.open('Rapport soumis pour validation !', 'Fermer', { duration: 3000 });
               this.router.navigate(['/rapports']);
@@ -322,5 +327,20 @@ export class RapportForm implements OnInit, OnDestroy {
 
   annuler(): void {
     this.router.navigate(['/rapports']);
+  }
+
+  private notifierSoumission(rapportId: string): void {
+    const visite = this.rapportExistant?.visite;
+    const chargeMissionId = visite?.chargeMission?.id ?? visite?.chargeMissionId ?? null;
+    if (!chargeMissionId) return;
+    this.notificationService.creer({
+      destinataireId:   chargeMissionId,
+      auteurId:         this.userId,
+      typeNotification: 'RAPPORT_SOUMIS',
+      titre:            'Nouveau rapport à valider',
+      contenu:          `Un rapport de visite a été soumis et est en attente de votre validation.`,
+      entiteType:       'RAPPORT',
+      entiteId:         rapportId
+    }).subscribe({ error: () => {} });
   }
 }

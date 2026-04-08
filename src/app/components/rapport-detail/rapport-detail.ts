@@ -12,6 +12,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RapportService, Rapport } from '../../services/rapport';
 import { TunnelService, Tunnel } from '../../services/tunnel';
 import { AuthService } from '../../services/auth';
+import { NotificationService } from '../../services/notification';
 import { CorrectionDialog } from '../correction-dialog/correction-dialog';
 import { HistoriquePanel } from '../historique-panel/historique-panel';
 
@@ -47,7 +48,8 @@ export class RapportDetail implements OnInit {
     private tunnelService: TunnelService,
     private authService: AuthService,
     private snackBar: MatSnackBar,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private notificationService: NotificationService
   ) {}
 
   get role(): string {
@@ -142,6 +144,19 @@ export class RapportDetail implements OnInit {
       if (commentaire) {
         this.rapportService.corriger(this.rapport!.id, commentaire).subscribe({
           next: () => {
+            // Notifier l'ingénieur auteur du rapport
+            const auteurId = this.rapport!.auteur?.id;
+            if (auteurId) {
+              this.notificationService.creer({
+                destinataireId:   auteurId,
+                auteurId:         this.authService.getUserId() || '',
+                typeNotification: 'RAPPORT_A_CORRIGER',
+                titre:            'Rapport à corriger',
+                contenu:          `Votre rapport a été retourné pour correction : ${commentaire}`,
+                entiteType:       'RAPPORT',
+                entiteId:         this.rapport!.id
+              }).subscribe({ error: () => {} });
+            }
             this.snackBar.open('Rapport retourné pour correction.', 'Fermer', { duration: 3000 });
             this.charger(this.rapport!.id);
           },

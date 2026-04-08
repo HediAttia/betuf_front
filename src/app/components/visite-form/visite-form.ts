@@ -11,6 +11,7 @@ import { TunnelService, Tunnel } from '../../services/tunnel';
 import { UtilisateurService, Utilisateur } from '../../services/utilisateur';
 import { VisiteService, Visite } from '../../services/visite';
 import { AuthService } from '../../services/auth';
+import { NotificationService } from '../../services/notification';
 
 @Component({
   selector: 'app-visite-form',
@@ -58,7 +59,8 @@ export class VisiteForm implements OnInit {
     private tunnelService: TunnelService,
     private utilisateurService: UtilisateurService,
     private visiteService: VisiteService,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
@@ -119,7 +121,19 @@ export class VisiteForm implements OnInit {
     this.visiteService.creer(this.visite.tunnelId, this.chargeMissionId, body).subscribe({
       next: (visite) => {
         this.visiteService.assignerIntervenant(visite.id, this.visite.ingenieurId).subscribe({
-          next:  () => { this.loading = false; this.dialogRef.close(true); },
+          next: () => {
+            this.notificationService.creer({
+              destinataireId:   this.visite.ingenieurId,
+              auteurId:         this.chargeMissionId,
+              typeNotification: 'VISITE_ASSIGNEE',
+              titre:            'Nouvelle visite assignée',
+              contenu:          `Une visite ${body.typeVisite} a été planifiée et vous a été assignée.`,
+              entiteType:       'VISITE',
+              entiteId:         visite.id
+            }).subscribe({ error: () => {} });
+            this.loading = false;
+            this.dialogRef.close(true);
+          },
           error: () => { this.loading = false; this.dialogRef.close(true); }
         });
       },
