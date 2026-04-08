@@ -129,17 +129,22 @@ export class DashboardIngenieur implements OnInit {
     this.visiteHistorique = visite;
     this.chargementHistorique = true;
 
-    const tunnelId = visite.tunnel?.id;
-    if (!tunnelId) {
-      this.historiquesNC = [];
-      this.chargementHistorique = false;
-      return;
-    }
+    // Résoudre le tunnelId depuis tous les champs possibles
+    const tunnel = this.resoudreTunnel(visite.tunnel ?? (visite as any).tunnelId);
+    const tunnelId = tunnel?.id ?? visite.tunnel?.id ?? (visite as any).tunnelId ?? null;
+    const tunnelNom = tunnel?.nom ?? visite.tunnel?.nom ?? (visite as any).tunnelNom ?? null;
 
-    // Filtrer les rapports validés pour ce tunnel
-    const rapportsTunnel = this.tousRapportsValides.filter(
-      (r: Rapport) => r.visite?.tunnel?.id === tunnelId
-    );
+    // Filtrer les rapports validés pour ce tunnel (multicouche)
+    const rapportsTunnel = this.tousRapportsValides.filter((r: Rapport) => {
+      const v = r.visite as any;
+      if (tunnelId) {
+        if (v?.tunnel?.id === tunnelId) return true;
+        if (v?.tunnelId === tunnelId) return true;
+      }
+      if (tunnelNom && v?.tunnel?.nom === tunnelNom) return true;
+      if (tunnelNom && v?.tunnelNom === tunnelNom) return true;
+      return false;
+    });
 
     this.historiquesNC = rapportsTunnel
       .map((r: Rapport) => {
