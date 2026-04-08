@@ -79,14 +79,20 @@ export class TunnelDetail implements OnInit {
 
         const visiteIds = new Set(this.visites.map(v => v.id));
         const allRapports = rapports as Rapport[];
+        const tunnelNom = tunnel.nom?.toLowerCase();
 
-        // Filtre multicouche : visite.id, visite.tunnel.id, ou visite.tunnelId
         this.rapports = allRapports.filter(r => {
-          // Cas 1 : la visite du rapport matche une visite du tunnel
-          if (r.visite?.id && visiteIds.has(r.visite.id)) return true;
-          // Cas 2 : le tunnel de la visite du rapport = ce tunnel
-          const tid = r.visite?.tunnel?.id ?? r.visite?.tunnelId ?? null;
-          return tid === tunnelId;
+          const v = r.visite as any;
+          // Cas 1 : visite.id matche directement
+          if (v?.id && visiteIds.has(v.id)) return true;
+          // Cas 2 : tunnel embarqué dans la visite — objet avec id
+          if (v?.tunnel?.id === tunnelId) return true;
+          // Cas 3 : tunnelId direct sur la visite
+          if (v?.tunnelId === tunnelId) return true;
+          // Cas 4 : tunnel embarqué — comparer par nom (dernier recours)
+          if (tunnelNom && v?.tunnel?.nom?.toLowerCase() === tunnelNom) return true;
+          if (tunnelNom && v?.tunnelNom?.toLowerCase() === tunnelNom) return true;
+          return false;
         });
 
         this.loading = false;
